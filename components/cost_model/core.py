@@ -100,11 +100,28 @@ def compute_costs(
     log_max = math.log(max(max_slope, 2))
     df["size_norm"] = (np.log(df["slope_km"].clip(lower=1)) / log_max).round(4)
 
+    # --- Challenge score: difficulty-based (0-10) ---
+    slope_valid = df["slope_km"].fillna(0) > 0
+    km_inter = df["km_intermediate"].fillna(0)
+    km_adv = df["km_advanced"].fillna(0)
+    km_easy = df["km_easy"].fillna(0)
+    adv_ratio = np.where(slope_valid, (km_inter + km_adv) / df["slope_km"], 0)
+    breadth = (
+        (km_easy > 0).astype(int)
+        + (km_inter > 0).astype(int)
+        + (km_adv > 0).astype(int)
+    ) / 3
+    size_fac = (df["slope_km"].fillna(0) / 30).clip(upper=1.0)
+    raw_challenge = (adv_ratio * 0.5 + breadth * 0.3 + size_fac * 0.2) * 10
+    df["challenge_score"] = np.where(slope_valid, raw_challenge.round(1), np.nan)
+
     # --- Quality score: weighted sum (size_norm scaled to 0-10) ---
+    challenge_fill = df["challenge_score"].fillna(0)
     df["quality_score"] = (
         weights["snow_reliability"] * df["snow_reliability"]
         + weights["family_friendliness"] * df["family_friendliness"]
         + weights["size_norm"] * df["size_norm"] * 10
+        + weights.get("challenge", 0) * challenge_fill
     ).round(2)
 
     # --- Value indices ---

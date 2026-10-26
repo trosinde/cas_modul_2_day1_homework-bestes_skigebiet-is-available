@@ -19,6 +19,7 @@ DASHBOARD_RESORT_FIELDS = [
     "family_day_cost_eur", "day_cost_v1_eur", "day_cost_v2_eur", "day_cost_v3_eur",
     "quality_score", "value_index", "value_index_v1", "value_index_v2", "value_index_v3",
     "in_ranking", "value_rank",
+    "km_easy", "km_intermediate", "km_advanced", "challenge_score",
     "source_coords", "source_driving", "source_prices", "source_physical", "source_ratings",
 ]
 

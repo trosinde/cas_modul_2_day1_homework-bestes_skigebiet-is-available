@@ -110,13 +110,18 @@ def assign_cluster_labels(df: pd.DataFrame, features: list[str]) -> dict[int, st
         if len(c) == 0:
             profiles.append((cid, {}))
             continue
+        def _mean(col):
+            if col not in c.columns:
+                return 0
+            v = c[col].mean()
+            return 0 if pd.isna(v) else v
         profiles.append((cid, {
-            "cost": c["family_day_cost_eur"].mean() if "family_day_cost_eur" in c.columns else 0,
-            "quality": c["quality_score"].mean() if "quality_score" in c.columns else 0,
-            "drive": c["drive_time_min"].mean() if "drive_time_min" in c.columns else 0,
-            "slope": c["slope_km"].mean() if "slope_km" in c.columns else 0,
-            "snow": c["snow_reliability"].mean() if "snow_reliability" in c.columns else 0,
-            "family": c["family_friendliness"].mean() if "family_friendliness" in c.columns else 0,
+            "cost": _mean("family_day_cost_eur"),
+            "quality": _mean("quality_score"),
+            "drive": _mean("drive_time_min"),
+            "slope": _mean("slope_km"),
+            "snow": _mean("snow_reliability"),
+            "family": _mean("family_friendliness"),
         }))
 
     used_labels: set[str] = set()
@@ -136,7 +141,9 @@ def assign_cluster_labels(df: pd.DataFrame, features: list[str]) -> dict[int, st
         "kleine Ferngebiete",
         lambda p: p["cost"] > medians["cost"] and p["quality"] > medians["quality"],
         "Premium-Gebiete",
-        lambda p: p["slope"] < medians["slope"] * 0.3,
+        lambda p: p["slope"] > medians["slope"] * 2.5,
+        "grosse Skigebiete",
+        lambda p: p["slope"] < medians["slope"] * 0.5,
         "Minigebiete",
         lambda p: p["drive"] > medians["drive"],
         "abgelegene Mittelgebiete",

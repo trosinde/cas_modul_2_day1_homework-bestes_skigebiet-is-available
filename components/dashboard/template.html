@@ -76,6 +76,10 @@ table.top10 tr:hover{background:#f8fafc}
   <label>Grössenklasse
     <select id="filterSize"><option value="">Alle</option><option value="small">Klein (&lt;30 km)</option><option value="medium">Mittel (30–100 km)</option><option value="large">Gross (&gt;100 km)</option></select>
   </label>
+  <label>Min. Anspruch
+    <input type="range" id="filterChallenge" min="0" max="10" step="0.5" value="0">
+    <div class="range-val"><span id="challengeVal">0</span></div>
+  </label>
   <label>Max. Fahrzeit
     <input type="range" id="filterDrive" min="30" max="600" step="10" value="180">
     <div class="range-val"><span id="driveVal">180</span> min</div>
@@ -105,7 +109,7 @@ table.top10 tr:hover{background:#f8fafc}
     </div>
     <div style="overflow-x:auto">
     <table class="top10">
-      <thead><tr><th>#</th><th>Skigebiet</th><th>Land</th><th>Pisten<span class="th-info">ⓘ<span class="th-tip"><b>Pistenkilometer:</b> Gesamtlänge aller Abfahrten des Skigebiets in km. Vom LLM geschätzt und über 3 Durchläufe gemittelt.</span></span></th><th>Fahrzeit<span class="th-info">ⓘ<span class="th-tip"><b>Fahrzeit:</b> Einfache Fahrtzeit in Minuten von Singen (Hohentwiel) zum Skigebiet. Vom LLM geschätzt. Nur Gebiete mit ≤ 180 min erscheinen im Ranking.</span></span></th><th>Kosten<span class="th-info">ⓘ<span class="th-tip"><b>Familientageskosten (EUR):</b> Gesamtkosten für einen Tagesausflug mit 2 Erwachsenen + 2 Kindern (16 &amp; 13 J.).<br><b>Formel:</b> Skipässe + Fahrtkosten (+ Mittagessen falls aktiv).<br>• <b>Skipässe</b> = min(2 × Erw. + Jugend + Kind, Familienpass)<br>• <b>Fahrtkosten</b> = 2 × Distanz (km) × 0.30 €/km (Hin- und Rückfahrt)<br>• <b>Mittagessen</b> = 4 × (Hauptgericht + Getränk), falls aktiviert<br><b>Variante:</b> Die aktive Kostenvariante kann links im Filter geändert werden (v1 = nur Pässe, v2 = Pässe + Fahrt, v3 = alles).</span></span></th><th>Aufschlüsselung<span class="th-info">ⓘ<span class="th-tip"><b>Kostenaufschlüsselung:</b> Visueller Balken der Kostenanteile.<br>• <b>Violett</b> = Skipässe<br>• <b>Cyan</b> = Fahrtkosten<br>• <b>Orange</b> = Mittagessen (falls aktiv)<br>Die Breite jedes Segments ist proportional zum jeweiligen Kostenanteil.</span></span></th><th>Qualität<span class="th-info">ⓘ<span class="th-tip"><b>Qualitätsscore (0–10):</b> Gewichtete Summe aus drei Faktoren:<br>• 40% Schneesicherheit (1–10, LLM)<br>• 35% Familienfreundlichkeit (1–10, LLM)<br>• 25% Grössenfaktor (log-skalierte Pisten-km, normiert auf 0–10)<br><b>Formel:</b> Q = 0.40 × Schnee + 0.35 × Familie + 0.25 × (ln(Pisten-km) ÷ ln(max)) × 10<br>Alle LLM-Scores sind Mittelwerte aus 3 unabhängigen Durchläufen.</span></span></th><th>Index<span class="th-info">ⓘ<span class="th-tip"><b>Value Index (Preis-Leistungs-Index):</b> Höher = besseres Verhältnis von Qualität zu Kosten.<br><b>Formel:</b> Value Index = Qualitätsscore ÷ (Tageskosten ÷ 100)<br><b>Beispiel:</b> Qualität 6.7 bei 180 EUR → 6.7 ÷ 1.80 = 3.72<br>Das Ranking sortiert nach diesem Index (absteigend). Ein Index &gt; 3 bedeutet sehr gute Preis-Leistung.</span></span></th></tr></thead>
+      <thead><tr><th>#</th><th>Skigebiet</th><th>Land</th><th>Pisten<span class="th-info">ⓘ<span class="th-tip"><b>Pistenkilometer:</b> Gesamtlänge aller Abfahrten des Skigebiets in km. Vom LLM geschätzt und über 3 Durchläufe gemittelt.</span></span></th><th>Fahrzeit<span class="th-info">ⓘ<span class="th-tip"><b>Fahrzeit:</b> Einfache Fahrtzeit in Minuten von Singen (Hohentwiel) zum Skigebiet. Vom LLM geschätzt. Nur Gebiete mit ≤ 180 min erscheinen im Ranking.</span></span></th><th>Kosten<span class="th-info">ⓘ<span class="th-tip"><b>Familientageskosten (EUR):</b> Gesamtkosten für einen Tagesausflug mit 2 Erwachsenen + 2 Kindern (16 &amp; 13 J.).<br><b>Formel:</b> Skipässe + Fahrtkosten (+ Mittagessen falls aktiv).<br>• <b>Skipässe</b> = min(2 × Erw. + Jugend + Kind, Familienpass)<br>• <b>Fahrtkosten</b> = 2 × Distanz (km) × 0.30 €/km (Hin- und Rückfahrt)<br>• <b>Mittagessen</b> = 4 × (Hauptgericht + Getränk), falls aktiviert<br><b>Variante:</b> Die aktive Kostenvariante kann links im Filter geändert werden (v1 = nur Pässe, v2 = Pässe + Fahrt, v3 = alles).</span></span></th><th>Aufschlüsselung<span class="th-info">ⓘ<span class="th-tip"><b>Kostenaufschlüsselung:</b> Visueller Balken der Kostenanteile.<br>• <b>Violett</b> = Skipässe<br>• <b>Cyan</b> = Fahrtkosten<br>• <b>Orange</b> = Mittagessen (falls aktiv)<br>Die Breite jedes Segments ist proportional zum jeweiligen Kostenanteil.</span></span></th><th>Anspruch<span class="th-info">ⓘ<span class="th-tip"><b>Anspruch (0–10):</b> Höher = anspruchsvolleres Gelände. Bewertet den Anteil roter und schwarzer Pisten, die Vielfalt der Schwierigkeitsgrade und die Gebietsgrösse.<br>Daten aus OpenSkiData. Hover über den Wert zeigt die km-Aufteilung.</span></span></th><th>Qualität<span class="th-info">ⓘ<span class="th-tip"><b>Qualitätsscore (0–10):</b> Gewichtete Summe aus vier Faktoren:<br>• 35% Anspruch (Challenge Score, OpenSkiData)<br>• 25% Schneesicherheit (1–10, LLM)<br>• 25% Grössenfaktor (log-skalierte Pisten-km, normiert auf 0–10)<br>• 15% Familienfreundlichkeit (1–10, LLM)<br><b>Formel:</b> Q = 0.35 × Anspruch + 0.25 × Schnee + 0.25 × Grösse + 0.15 × Familie</span></span></th><th>Index<span class="th-info">ⓘ<span class="th-tip"><b>Value Index (Preis-Leistungs-Index):</b> Höher = besseres Verhältnis von Qualität zu Kosten.<br><b>Formel:</b> Value Index = Qualitätsscore ÷ (Tageskosten ÷ 100)<br><b>Beispiel:</b> Qualität 6.7 bei 180 EUR → 6.7 ÷ 1.80 = 3.72<br>Das Ranking sortiert nach diesem Index (absteigend). Ein Index &gt; 3 bedeutet sehr gute Preis-Leistung.</span></span></th></tr></thead>
       <tbody id="top10Body"></tbody>
     </table>
     </div>
@@ -120,7 +124,7 @@ table.top10 tr:hover{background:#f8fafc}
       <div class="chart-card" id="chartCountryBox"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Y-Achse:</b> Familientageskosten (EUR) pro Land.<br><b>Aufbau Boxplot:</b><br>• Linie in der Box = Median<br>• Boxgrenzen = 25. und 75. Perzentil (Q1–Q3)<br>• Whisker = bis 1.5 × IQR vom Quartil<br>• Einzelne Punkte = Ausreisser<br><b>Kosten enthalten:</b> Skipässe + Fahrtkosten (+ Mittagessen falls aktiv).<br><b>Hinweis:</b> Zeigt nur Gebiete innerhalb des aktiven Fahrzeit-Filters. Entfernte Länder haben weniger Datenpunkte, weil weniger Gebiete in Reichweite liegen.</span></span></div>
       <div class="chart-card" id="chartPCA"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Methode:</b> k-Means-Clustering auf 4 Merkmalen: Qualitätsscore, Familientageskosten, Pistenkilometer, Schneesicherheit. Optimale Clusterzahl automatisch per Silhouette-Score bestimmt (k = 3–8).<br><b>Achsen:</b> PC1 und PC2 sind die ersten zwei Hauptkomponenten (PCA) — sie fassen die 4 Merkmale in 2 Dimensionen zusammen. Nähe = Ähnlichkeit im Merkmalsprofil.<br><b>Farbe:</b> Cluster-Zugehörigkeit. Labels beschreiben das statistische Profil jedes Clusters (z.B. «nah &amp; günstig», «Grosse Premium-Gebiete»).<br><b>Hinweis:</b> Umfasst alle Skigebiete, nicht nur die im Ranking.</span></span></div>
       <div class="chart-card" id="chartScoreHist"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>X-Achse:</b> Score-Wert (Skala 1–10, ganzzahlig).<br><b>Y-Achse:</b> Anzahl Skigebiete mit diesem Score.<br><b>Drei Verteilungen (überlagert):</b><br>• Schnee (blau) = Schneesicherheit — wie zuverlässig ist die Schneelage?<br>• Familie (grün) = Familienfreundlichkeit — Kinderangebote, Übungsgelände, Erreichbarkeit<br>• Preis-Leistung (gelb) = subjektives Preis-Leistungs-Verhältnis<br><b>Quelle:</b> Alle drei Scores wurden vom LLM in 3 unabhängigen Durchläufen vergeben und gemittelt. Schmalere Verteilung = grössere Einigkeit zwischen den Durchläufen.</span></span></div>
-      <div class="chart-card" id="chartCorr"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Was ist das?</b> Eine Heatmap der Pearson-Korrelation (r) zwischen je zwei Kennzahlen. Jede Zelle zeigt, wie stark zwei Grössen linear zusammenhängen.<br><br><b>Wie lese ich die Farben?</b><br>• <b>Dunkelblau (r nahe 1):</b> Starker positiver Zusammenhang — steigt A, steigt auch B.<br>• <b>Hellblau (r mittel):</b> Moderater Zusammenhang.<br>• <b>Grau/Hell (r nahe 0):</b> Kein linearer Zusammenhang.<br>Die Farbskala rechts zeigt den genauen Bereich der r-Werte in den Daten.<br><br><b>Wie lese ich eine Zelle?</b> Zeile × Spalte ergibt das Kennzahlenpaar. Die Zahl in der Zelle ist der r-Wert. Die Diagonale ist immer 1.00 (jede Grösse korreliert perfekt mit sich selbst).<br><br><b>Warum nur positive Werte?</b> In diesem Datensatz korrelieren alle Merkmale positiv — grössere Gebiete haben tendenziell höhere Preise, besseren Schnee und höhere Qualitätsscores.<br><br><b>Enthaltene Merkmale:</b> Pisten-km, Schneesicherheit (LLM 1–10), Familienfreundlichkeit (LLM 1–10), Tagespass Erwachsene (EUR), Fahrzeit ab Singen (min), Qualitätsscore (gewichtete Summe).<br><br><b>Beispiel:</b> Zelle «Pisten-km / Tagesk. Erw.» mit r = 0.87 bedeutet: Grössere Skigebiete haben deutlich höhere Tagespasspreise — ein starker positiver Zusammenhang.</span></span></div>
+      <div class="chart-card" id="chartCorr"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Was ist das?</b> Eine Heatmap der Pearson-Korrelation (r) zwischen je zwei Kennzahlen. Jede Zelle zeigt, wie stark zwei Grössen linear zusammenhängen.<br><br><b>Wie lese ich die Farben?</b><br>• <b>Dunkelblau (r nahe 1):</b> Starker positiver Zusammenhang — steigt A, steigt auch B.<br>• <b>Hellblau (r mittel):</b> Moderater Zusammenhang.<br>• <b>Grau/Hell (r nahe 0):</b> Kein linearer Zusammenhang.<br>Die Farbskala rechts zeigt den genauen Bereich der r-Werte in den Daten.<br><br><b>Wie lese ich eine Zelle?</b> Zeile × Spalte ergibt das Kennzahlenpaar. Die Zahl in der Zelle ist der r-Wert. Die Diagonale ist immer 1.00 (jede Grösse korreliert perfekt mit sich selbst).<br><br><b>Warum nur positive Werte?</b> In diesem Datensatz korrelieren alle Merkmale positiv — grössere Gebiete haben tendenziell höhere Preise, besseren Schnee und höhere Qualitätsscores.<br><br><b>Enthaltene Merkmale:</b> Pisten-km, Schneesicherheit (LLM 1–10), Familienfreundlichkeit (LLM 1–10), Anspruch (Challenge Score 0–10, aus OpenSkiData), Tagespass Erwachsene (EUR), Fahrzeit ab Singen (min), Qualitätsscore (gewichtete Summe).<br><br><b>Beispiel:</b> Zelle «Pisten-km / Tagesk. Erw.» mit r = 0.87 bedeutet: Grössere Skigebiete haben deutlich höhere Tagespasspreise — ein starker positiver Zusammenhang.</span></span></div>
     </div>
   </div>
 
@@ -188,11 +192,13 @@ function getFiltered() {
   const country = document.getElementById('filterCountry').value;
   const size = document.getElementById('filterSize').value;
   const maxDrive = +document.getElementById('filterDrive').value;
+  const minChallenge = +document.getElementById('filterChallenge').value;
   const variant = document.getElementById('filterVariant').value;
   return resorts.filter(r => {
     if (country && r.country !== country) return false;
     if (size && r.size_class !== size) return false;
     if (r.drive_time_min > maxDrive) return false;
+    if (minChallenge > 0 && (r.challenge_score || 0) < minChallenge) return false;
     return true;
   }).map(r => {
     const costKey = 'day_cost_' + variant + '_eur';
@@ -322,6 +328,8 @@ function buildTop10() {
     const travW = ((r.travel_cost_eur || 0) / maxCost * 100).toFixed(1);
     const lunchW = ((r.lunch_cost_eur || 0) / maxCost * 100).toFixed(1);
     const tr = document.createElement('tr');
+    const kmE = r.km_easy || 0, kmI = r.km_intermediate || 0, kmA = r.km_advanced || 0;
+    const challTip = `Blau: ${kmE} km · Rot: ${kmI} km · Schwarz: ${kmA} km`;
     tr.innerHTML = `<td><span class="rank-badge ${cls}">${rank}</span></td>` +
       `<td><b>${r.name}</b></td><td>${r.country}</td><td>${r.slope_km} km</td>` +
       `<td>${r.drive_time_min} min</td><td><b>${(r._cost||0).toFixed(0)}</b> EUR</td>` +
@@ -329,6 +337,7 @@ function buildTop10() {
       `<div class="seg-pass" style="width:${passW}%"></div><div class="seg-travel" style="width:${travW}%"></div>` +
       `${r.lunch_cost_eur != null ? '<div class="seg-lunch" style="width:' + lunchW + '%"></div>' : ''}` +
       `</div></td>` +
+      `<td title="${challTip}"><b>${(r.challenge_score||0).toFixed(1)}</b></td>` +
       `<td>${(r.quality_score||0).toFixed(1)}</td><td><b>${(r._vi||0).toFixed(2)}</b></td>`;
     tbody.appendChild(tr);
   });
@@ -413,8 +422,8 @@ function buildCharts() {
     xaxis: { title: 'Score (1–10)', dtick: 1 }, yaxis: { title: 'Anzahl' } }, plotCfg);
 
   // 6 Correlation heatmap
-  const corrCols = ['slope_km', 'snow_reliability', 'family_friendliness', 'day_pass_adult_eur', 'drive_time_min', 'quality_score'];
-  const corrLabels = ['Pisten-km', 'Schnee', 'Familie', 'Tagesk. Erw.', 'Fahrzeit', 'Qualität'];
+  const corrCols = ['slope_km', 'snow_reliability', 'family_friendliness', 'challenge_score', 'day_pass_adult_eur', 'drive_time_min', 'quality_score'];
+  const corrLabels = ['Pisten-km', 'Schnee', 'Familie', 'Anspruch', 'Tagesk. Erw.', 'Fahrzeit', 'Qualität'];
   function pearson(data, c1, c2) {
     const pairs = data.filter(r => r[c1] != null && r[c2] != null);
     const n = pairs.length;
@@ -491,6 +500,7 @@ let chartsRendered = false;
 
 function render() {
   document.getElementById('driveVal').textContent = document.getElementById('filterDrive').value;
+  document.getElementById('challengeVal').textContent = document.getElementById('filterChallenge').value;
   document.getElementById('resortCount').textContent = getFiltered().length + ' / ' + resorts.length + ' Skigebiete';
   buildMap();
   buildTop10();
@@ -504,6 +514,7 @@ function render() {
 // Event listeners
 ['filterCountry', 'filterSize', 'filterVariant'].forEach(id => document.getElementById(id).addEventListener('change', render));
 document.getElementById('filterDrive').addEventListener('input', render);
+document.getElementById('filterChallenge').addEventListener('input', render);
 
 // Initial render: map + table immediately, charts when Plotly loads
 render();

@@ -396,7 +396,7 @@ def run(
 
     resort_df["size_class_agreement"] = 1.0
 
-    drop_cols = ["openskidata_id", "website", "_size_class", "lift_count", "sources"]
+    drop_cols = ["openskidata_id", "website", "_size_class", "sources"]
     resort_df = resort_df.drop(columns=[c for c in drop_cols if c in resort_df.columns], errors="ignore")
 
     if "region" not in resort_df.columns:

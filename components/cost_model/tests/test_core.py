@@ -42,6 +42,9 @@ def _make_resorts() -> pd.DataFrame:
                 "snow_reliability": 6,
                 "family_friendliness": 7,
                 "n_runs_valid": 3,
+                "km_easy": 20.0,
+                "km_intermediate": 30.0,
+                "km_advanced": 15.0,
             },
             {
                 "resort_id": "at-schladming",
@@ -57,6 +60,9 @@ def _make_resorts() -> pd.DataFrame:
                 "snow_reliability": 8,
                 "family_friendliness": 7,
                 "n_runs_valid": 3,
+                "km_easy": 40.0,
+                "km_intermediate": 50.0,
+                "km_advanced": 33.0,
             },
             {
                 "resort_id": "de-fellhorn",
@@ -72,6 +78,9 @@ def _make_resorts() -> pd.DataFrame:
                 "snow_reliability": 5,
                 "family_friendliness": 8,
                 "n_runs_valid": 3,
+                "km_easy": 10.0,
+                "km_intermediate": 16.0,
+                "km_advanced": 10.0,
             },
         ]
     )

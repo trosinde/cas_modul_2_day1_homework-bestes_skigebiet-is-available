@@ -64,8 +64,9 @@ costs:
 
 quality:
   weights:
-    snow_reliability: 0.40
-    family_friendliness: 0.35
+    snow_reliability: 0.25
+    family_friendliness: 0.15
+    challenge: 0.35
     size_norm: 0.25
 
 clustering:

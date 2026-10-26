@@ -95,7 +95,24 @@ def _extract_resorts(data: dict, countries: list[str]) -> list[dict]:
 
         max_elev = stats.get("maxElevation")
         min_elev = stats.get("minElevation")
-        lift_count = stats.get("lifts", {}).get("liftCount", 0)
+        lifts_by_type = stats.get("lifts", {}).get("byType", {})
+        lift_count = sum(
+            t.get("count", 0) for t in lifts_by_type.values()
+            if isinstance(t, dict)
+        )
+
+        if lift_count == 0:
+            continue
+
+        easy_cats = ("easy", "novice")
+        inter_cats = ("intermediate",)
+        adv_cats = ("advanced", "expert", "freeride", "extreme")
+        n_runs_easy = sum(runs_data.get(c, {}).get("count", 0) for c in easy_cats)
+        n_runs_intermediate = sum(runs_data.get(c, {}).get("count", 0) for c in inter_cats)
+        n_runs_advanced = sum(runs_data.get(c, {}).get("count", 0) for c in adv_cats)
+        km_easy = round(sum(runs_data.get(c, {}).get("lengthInKm", 0) for c in easy_cats), 1)
+        km_intermediate = round(sum(runs_data.get(c, {}).get("lengthInKm", 0) for c in inter_cats), 1)
+        km_advanced = round(sum(runs_data.get(c, {}).get("lengthInKm", 0) for c in adv_cats), 1)
 
         websites = props.get("websites") or []
         sources = props.get("sources") or []
@@ -112,6 +129,12 @@ def _extract_resorts(data: dict, countries: list[str]) -> list[dict]:
             "top_elevation_m": round(max_elev, 0) if max_elev is not None else None,
             "base_elevation_m": round(min_elev, 0) if min_elev is not None else None,
             "lift_count": lift_count,
+            "n_runs_easy": n_runs_easy or None,
+            "n_runs_intermediate": n_runs_intermediate or None,
+            "n_runs_advanced": n_runs_advanced or None,
+            "km_easy": km_easy or None,
+            "km_intermediate": km_intermediate or None,
+            "km_advanced": km_advanced or None,
             "sources": sources,
         }
         resorts.append(rec)
