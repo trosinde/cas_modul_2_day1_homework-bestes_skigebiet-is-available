@@ -27,7 +27,7 @@
     "reason_value": "Moderate Preise bei guter Familieninfrastruktur bieten ein solides Preis-Leistungs-Verhältnis."
   },
   {
-    "resort_id": "at-schladming",
+    "resort_id": "at-schladming-dachstein",
     "name": "Schladming-Dachstein",
     "country": "AT",
     "region": "Steiermark",
@@ -54,7 +54,7 @@
     "reason_value": "Hohe Qualität aber weite Anreise und hohe Passpreise senken das Preis-Leistungs-Verhältnis."
   },
   {
-    "resort_id": "de-fellhorn",
+    "resort_id": "de-fellhorn-kanzelwand",
     "name": "Fellhorn/Kanzelwand",
     "country": "DE",
     "region": "Bayern",

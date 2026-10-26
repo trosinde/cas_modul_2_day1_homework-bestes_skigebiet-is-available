@@ -60,7 +60,7 @@ def _row_to_typed(row, schema):
     props = schema.get("properties", {})
     typed = {}
     for col, val in row.items():
-        if val == "" or val is None:
+        if val == "" or val is None or (isinstance(val, float) and pd.isna(val)):
             typed[col] = None
             continue
         prop = props.get(col, {})

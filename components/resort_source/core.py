@@ -82,7 +82,7 @@ def fetch_resort_list(
                         "region": country,
                         "existing_names": ", ".join(existing_names) or "none",
                     },
-                    record_schema_id="resort_record",
+                    record_schema_id="resort_item_record",
                     temperature=cfg["llm"]["temperature_factual"],
                     out_path=out_path,
                     cfg=cfg,
@@ -217,12 +217,7 @@ def _build_runs_df(all_run_records: list[dict]) -> pd.DataFrame:
 
 def _build_merged_df(runs_df: pd.DataFrame) -> pd.DataFrame:
     """Merge 3 runs into final resorts.csv."""
-    return merge_resort_runs(
-        runs_df,
-        numeric_attrs=NUMERIC_ATTRS,
-        categorical_attrs=CATEGORICAL_ATTRS,
-        text_attrs=TEXT_ATTRS,
-    )
+    return merge_resort_runs(runs_df)
 
 
 def run(

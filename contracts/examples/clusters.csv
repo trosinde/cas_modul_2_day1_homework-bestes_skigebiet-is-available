@@ -1,6 +1,6 @@
 resort_id,cluster_id,cluster_label,pc1,pc2,silhouette
 ch-flumserberg,0,nah und günstig,-1.23,0.45,0.72
-at-schladming,1,gross und teuer,1.85,-0.92,0.58
-de-fellhorn,0,nah und günstig,-1.56,0.78,0.65
+at-schladming-dachstein,1,gross und teuer,1.85,-0.92,0.58
+de-fellhorn-kanzelwand,0,nah und günstig,-1.56,0.78,0.65
 it-kronplatz,1,gross und teuer,1.42,-0.55,0.61
 ch-arosa-lenzerheide,2,premium schneesicher,0.68,1.32,0.70

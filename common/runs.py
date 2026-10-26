@@ -25,7 +25,7 @@ def merge_categorical(values):
 
 
 RESORT_NUMERIC = [
-    "lat", "lon", "top_elevation_m", "base_elevation_m", "slope_km",
+    "top_elevation_m", "base_elevation_m", "slope_km",
     "day_pass_adult_eur", "day_pass_youth16_eur", "day_pass_child13_eur",
     "family_pass_eur", "drive_time_min", "drive_distance_km",
     "snow_reliability", "family_friendliness", "value_for_money",
@@ -46,7 +46,7 @@ def merge_resort_runs(runs_df):
     for rid, group in grouped:
         row = {"resort_id": rid}
         first = group.iloc[0]
-        for col in ["name", "country", "region"]:
+        for col in ["name", "country", "region", "lat", "lon"]:
             if col in group.columns:
                 row[col] = first[col]
 

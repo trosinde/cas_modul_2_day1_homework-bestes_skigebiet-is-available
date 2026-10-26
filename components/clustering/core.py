@@ -5,42 +5,95 @@ from __future__ import annotations
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score, silhouette_samples
+
+try:
+    from sklearn.cluster import KMeans
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.decomposition import PCA
+    from sklearn.metrics import silhouette_score, silhouette_samples
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
 
 from common.contract_io import read_csv, write_csv
 from common.log import get_logger
 
 logger = get_logger("clustering")
 
-CLUSTER_LABELS = {
-    0: "nah & günstig",
-    1: "gross & teuer",
-    2: "familienfreundlich",
-    3: "schneesicher & abgelegen",
-    4: "klein & preiswert",
-    5: "Premium-Gebiete",
-    6: "Allrounder",
-    7: "Budget-Gebiete",
-}
+
+def _standardize(X: np.ndarray) -> np.ndarray:
+    mean = X.mean(axis=0)
+    std = X.std(axis=0)
+    std[std == 0] = 1.0
+    return (X - mean) / std
+
+
+def _pca_2d(X: np.ndarray) -> np.ndarray:
+    X_centered = X - X.mean(axis=0)
+    cov = np.cov(X_centered, rowvar=False)
+    eigenvalues, eigenvectors = np.linalg.eigh(cov)
+    idx = np.argsort(eigenvalues)[::-1][:2]
+    return X_centered @ eigenvectors[:, idx]
+
+
+def _kmeans_simple(X: np.ndarray, k: int, random_state: int, n_init: int = 10) -> np.ndarray:
+    from scipy.cluster.vq import kmeans2
+    rng = np.random.RandomState(random_state)
+    best_labels = None
+    best_inertia = np.inf
+    for _ in range(n_init):
+        idx = rng.choice(len(X), k, replace=False)
+        centroids, labels = kmeans2(X, X[idx], minit='matrix', iter=100)
+        inertia = sum(np.linalg.norm(X[i] - centroids[labels[i]])**2 for i in range(len(X)))
+        if inertia < best_inertia:
+            best_inertia = inertia
+            best_labels = labels
+    return best_labels
+
+
+def _silhouette_samples_simple(X: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    from scipy.spatial.distance import cdist
+    n = len(X)
+    unique_labels = np.unique(labels)
+    if len(unique_labels) <= 1:
+        return np.zeros(n)
+    dist = cdist(X, X)
+    sil = np.zeros(n)
+    for i in range(n):
+        same = labels == labels[i]
+        same[i] = False
+        if same.sum() == 0:
+            sil[i] = 0
+            continue
+        a_i = dist[i, same].mean()
+        b_i = np.inf
+        for label in unique_labels:
+            if label == labels[i]:
+                continue
+            other = labels == label
+            if other.sum() > 0:
+                b_i = min(b_i, dist[i, other].mean())
+        sil[i] = (b_i - a_i) / max(a_i, b_i) if max(a_i, b_i) > 0 else 0
+    return sil
 
 
 def find_best_k(X: np.ndarray, k_min: int, k_max: int, random_state: int) -> tuple[int, dict]:
-    """Find best k via silhouette score."""
     scores = {}
     for k in range(k_min, k_max + 1):
-        km = KMeans(n_clusters=k, random_state=random_state, n_init=10)
-        labels = km.fit_predict(X)
-        s = silhouette_score(X, labels)
+        if HAS_SKLEARN:
+            km = KMeans(n_clusters=k, random_state=random_state, n_init=10)
+            labels = km.fit_predict(X)
+            s = silhouette_score(X, labels)
+        else:
+            labels = _kmeans_simple(X, k, random_state)
+            sil = _silhouette_samples_simple(X, labels)
+            s = float(sil.mean())
         scores[k] = round(s, 4)
     best_k = max(scores, key=scores.get)
     return best_k, scores
 
 
 def assign_cluster_labels(df: pd.DataFrame, features: list[str]) -> dict[int, str]:
-    """Assign descriptive labels based on cluster centroids."""
     labels = []
     for cid in sorted(df["cluster_id"].unique()):
         cluster = df[df["cluster_id"] == cid]
@@ -63,14 +116,13 @@ def assign_cluster_labels(df: pd.DataFrame, features: list[str]) -> dict[int, st
         elif "snow_reliability" in cluster.columns and cluster["snow_reliability"].mean() > df["snow_reliability"].quantile(0.75):
             label = "schneesicher & abgelegen"
         else:
-            label = CLUSTER_LABELS.get(cid, f"Cluster {cid}")
+            label = f"Cluster {cid}"
         labels.append((cid, label))
 
     return dict(labels)
 
 
 def run_clustering(costs_df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dict]:
-    """Run k-means clustering on resort cost data."""
     cluster_cfg = cfg["clustering"]
     features = cluster_cfg["features"]
     k_min = cluster_cfg["k_min"]
@@ -81,28 +133,34 @@ def run_clustering(costs_df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dic
     X_raw = costs_df[available].copy()
     X_raw = X_raw.fillna(X_raw.median())
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_raw)
+    if HAS_SKLEARN:
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X_raw)
+    else:
+        X_scaled = _standardize(X_raw.values)
 
     effective_k_max = min(k_max, len(costs_df) - 1)
     best_k, sil_scores = find_best_k(X_scaled, k_min, effective_k_max, random_state)
     logger.info(f"Best k={best_k}, silhouette scores: {sil_scores}")
 
-    km = KMeans(n_clusters=best_k, random_state=random_state, n_init=10)
-    labels = km.fit_predict(X_scaled)
-
-    pca = PCA(n_components=2, random_state=random_state)
-    coords = pca.fit_transform(X_scaled)
-
-    sil_values = silhouette_samples(X_scaled, labels)
+    if HAS_SKLEARN:
+        km = KMeans(n_clusters=best_k, random_state=random_state, n_init=10)
+        labels = km.fit_predict(X_scaled)
+        pca = PCA(n_components=2, random_state=random_state)
+        coords = pca.fit_transform(X_scaled)
+        sil_values = silhouette_samples(X_scaled, labels)
+    else:
+        labels = _kmeans_simple(X_scaled, best_k, random_state)
+        coords = _pca_2d(X_scaled)
+        sil_values = _silhouette_samples_simple(X_scaled, labels)
 
     result = pd.DataFrame({
         "resort_id": costs_df["resort_id"].values,
         "cluster_id": labels,
         "cluster_label": "",
-        "pc1": coords[:, 0].round(4),
-        "pc2": coords[:, 1].round(4),
-        "silhouette": sil_values.round(4),
+        "pc1": np.round(coords[:, 0], 4),
+        "pc2": np.round(coords[:, 1], 4),
+        "silhouette": np.round(sil_values, 4),
     })
 
     temp = costs_df.copy()

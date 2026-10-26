@@ -5,3 +5,11 @@ __pycache__/
 logs/
 .DS_Store
 node_modules/
+data/raw/
+data/processed/
+task4_visual_exploration/output/
+task5_validation/fact_check_sample.csv
+task5_validation/fact_check_sample.csv.meta.json
+task5_validation/output/
+report/figures/
+*.meta.json

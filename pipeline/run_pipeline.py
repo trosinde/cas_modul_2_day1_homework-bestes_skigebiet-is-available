@@ -23,6 +23,7 @@ def run_pipeline(config_path: str = "config.yaml", mock: bool = False, yes: bool
 
     if mock:
         cfg["llm"]["provider"] = "mock"
+        cfg["resorts"]["min_items"] = 3
 
     include_lunch = cfg.get("include_lunch_cost", False)
 

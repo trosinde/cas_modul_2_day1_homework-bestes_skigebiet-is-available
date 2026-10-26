@@ -72,9 +72,13 @@ def render_dashboard(data: dict) -> str:
 
 
 def export_figures(data: dict, figures_dir: Path, cfg: dict) -> pd.DataFrame:
-    """Export chart PNGs for the report."""
-    import plotly.graph_objects as go
-    import plotly.express as px
+    """Export chart PNGs for the report. Requires plotly + kaleido."""
+    try:
+        import plotly.graph_objects as go
+        import plotly.express as px
+    except ImportError:
+        logger.warning("plotly not installed – skipping PNG figure export")
+        return pd.DataFrame(columns=["file", "component", "title", "task", "caption"])
 
     figures_dir.mkdir(parents=True, exist_ok=True)
     figures = []

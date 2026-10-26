@@ -9,7 +9,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import jsonschema
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv():
+        """Fallback: load .env manually if python-dotenv is not installed."""
+        env_path = Path(".env")
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, _, v = line.partition("=")
+                    os.environ.setdefault(k.strip(), v.strip())
 
 
 @dataclass

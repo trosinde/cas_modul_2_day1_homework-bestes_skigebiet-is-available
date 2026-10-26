@@ -12,6 +12,7 @@
     "confidence", "reason_snow", "reason_family", "reason_value"
   ],
   "properties": {
+    "resort_id": { "type": "string", "minLength": 1 },
     "name": { "type": "string", "minLength": 1 },
     "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
     "region": { "type": "string", "minLength": 1 },

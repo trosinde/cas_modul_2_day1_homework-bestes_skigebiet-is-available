@@ -1,4 +1,4 @@
 batch_id,item_id,record_name,reason,detail
 resort_attributes_run2_batch1,ch-flumserberg,Flumserberg,schema_violation,top_elevation_m value 999999 exceeds maximum 4000
 resort_items_ch,,"Fantasie-Skigebiet Zürich",unknown_item,Resort does not exist; removed from list
-resort_attributes_run1_batch2,at-schladming,Schladming-Dachstein,duplicate,Duplicate entry for resort_id at-schladming in same batch
+resort_attributes_run1_batch2,at-schladming-dachstein,Schladming-Dachstein,duplicate,Duplicate entry for resort_id at-schladming-dachstein in same batch
