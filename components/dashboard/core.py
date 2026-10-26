@@ -11,13 +11,26 @@ from common.log import get_logger
 logger = get_logger("dashboard")
 
 
+DASHBOARD_RESORT_FIELDS = [
+    "resort_id", "name", "country", "lat", "lon", "slope_km", "size_class",
+    "drive_time_min", "snow_reliability", "family_friendliness", "value_for_money",
+    "confidence", "reason_snow", "day_pass_adult_eur",
+    "family_pass_cost_eur", "travel_cost_eur", "lunch_cost_eur",
+    "family_day_cost_eur", "day_cost_v1_eur", "day_cost_v2_eur", "day_cost_v3_eur",
+    "quality_score", "value_index", "value_index_v1", "value_index_v2", "value_index_v3",
+    "in_ranking", "value_rank",
+]
+
+
 def prepare_data(cfg: dict) -> dict:
     """Load all processed data for the dashboard."""
     from common.paths import processed_dir
     proc = Path(processed_dir(cfg))
 
     data = {}
-    data["resorts"] = read_csv(proc / "resorts_costs.csv", "cost_table").to_dict("records")
+    df = read_csv(proc / "resorts_costs.csv", "cost_table")
+    keep = [c for c in DASHBOARD_RESORT_FIELDS if c in df.columns]
+    data["resorts"] = df[keep].to_dict("records")
 
     if (proc / "clusters.csv").exists():
         data["clusters"] = read_csv(proc / "clusters.csv", "clusters").to_dict("records")
@@ -60,6 +73,7 @@ def clean_for_json(obj):
 
 def render_dashboard(data: dict) -> str:
     """Render the HTML dashboard from template."""
+    import os
     template_path = Path(__file__).parent / "template.html"
     template = Template(template_path.read_text(encoding="utf-8"))
 
@@ -68,6 +82,7 @@ def render_dashboard(data: dict) -> str:
     return template.render(
         data_json=json.dumps(clean_data, ensure_ascii=False),
         title="Skigebiete Familien-Ranking",
+        carto_api_key=os.environ.get("CARTO_API_KEY", ""),
     )
 
 

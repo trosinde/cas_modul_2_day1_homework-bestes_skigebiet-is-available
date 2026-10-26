@@ -92,35 +92,85 @@ def _save_envelope(
 
 
 def _call_anthropic(system_prompt: str, user_prompt: str, model: str, temperature: float) -> tuple[str, int, int]:
-    import anthropic
-
-    client = anthropic.Anthropic()
-    response = client.messages.create(
-        model=model,
-        max_tokens=4096,
-        temperature=temperature,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_prompt}],
+    try:
+        import anthropic
+        client = anthropic.Anthropic()
+        response = client.messages.create(
+            model=model,
+            max_tokens=4096,
+            temperature=temperature,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        text = response.content[0].text
+        return text, response.usage.input_tokens, response.usage.output_tokens
+    except ImportError:
+        pass
+    import httpx
+    api_key = os.environ["ANTHROPIC_API_KEY"]
+    resp = httpx.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": model,
+            "max_tokens": 4096,
+            "temperature": temperature,
+            "system": system_prompt,
+            "messages": [{"role": "user", "content": user_prompt}],
+        },
+        timeout=120,
     )
-    text = response.content[0].text
-    return text, response.usage.input_tokens, response.usage.output_tokens
+    resp.raise_for_status()
+    data = resp.json()
+    text = data["content"][0]["text"]
+    usage = data.get("usage", {})
+    return text, usage.get("input_tokens", 0), usage.get("output_tokens", 0)
 
 
 def _call_openai(system_prompt: str, user_prompt: str, model: str, temperature: float) -> tuple[str, int, int]:
-    from openai import OpenAI
-
-    client = OpenAI()
-    response = client.chat.completions.create(
-        model=model,
-        temperature=temperature,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
+    try:
+        from openai import OpenAI
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model=model,
+            temperature=temperature,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+        )
+        text = response.choices[0].message.content
+        usage = response.usage
+        return text, usage.prompt_tokens, usage.completion_tokens
+    except ImportError:
+        pass
+    import httpx
+    api_key = os.environ["OPENAI_API_KEY"]
+    resp = httpx.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": model,
+            "temperature": temperature,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+        },
+        timeout=120,
     )
-    text = response.choices[0].message.content
-    usage = response.usage
-    return text, usage.prompt_tokens, usage.completion_tokens
+    resp.raise_for_status()
+    data = resp.json()
+    text = data["choices"][0]["message"]["content"]
+    usage = data.get("usage", {})
+    return text, usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)
 
 
 def _call_mock(template_id: str, variables: dict, mock_dir: str = "contracts/examples/llm_responses") -> tuple[str, int, int]:
@@ -166,8 +216,8 @@ def _detect_provider(cfg: dict) -> tuple[str, str]:
     if provider == "mock":
         return "mock", "mock"
 
-    has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    has_openai = bool(os.environ.get("OPENAI_API_KEY"))
+    has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY", "").strip())
+    has_openai = bool(os.environ.get("OPENAI_API_KEY", "").strip())
 
     if provider == "auto":
         if has_anthropic and has_openai:

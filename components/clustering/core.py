@@ -94,32 +94,73 @@ def find_best_k(X: np.ndarray, k_min: int, k_max: int, random_state: int) -> tup
 
 
 def assign_cluster_labels(df: pd.DataFrame, features: list[str]) -> dict[int, str]:
-    labels = []
+    """Assign a unique descriptive label to each cluster based on its profile."""
+    medians = {
+        "cost": df["family_day_cost_eur"].median() if "family_day_cost_eur" in df.columns else 0,
+        "quality": df["quality_score"].median() if "quality_score" in df.columns else 0,
+        "drive": df["drive_time_min"].median() if "drive_time_min" in df.columns else 0,
+        "slope": df["slope_km"].median() if "slope_km" in df.columns else 0,
+        "snow": df["snow_reliability"].median() if "snow_reliability" in df.columns else 0,
+        "family": df["family_friendliness"].median() if "family_friendliness" in df.columns else 0,
+    }
+
+    profiles = []
     for cid in sorted(df["cluster_id"].unique()):
-        cluster = df[df["cluster_id"] == cid]
-        if len(cluster) == 0:
-            labels.append((cid, f"Cluster {cid}"))
+        c = df[df["cluster_id"] == cid]
+        if len(c) == 0:
+            profiles.append((cid, {}))
             continue
+        profiles.append((cid, {
+            "cost": c["family_day_cost_eur"].mean() if "family_day_cost_eur" in c.columns else 0,
+            "quality": c["quality_score"].mean() if "quality_score" in c.columns else 0,
+            "drive": c["drive_time_min"].mean() if "drive_time_min" in c.columns else 0,
+            "slope": c["slope_km"].mean() if "slope_km" in c.columns else 0,
+            "snow": c["snow_reliability"].mean() if "snow_reliability" in c.columns else 0,
+            "family": c["family_friendliness"].mean() if "family_friendliness" in c.columns else 0,
+        }))
 
-        mean_cost = cluster["family_day_cost_eur"].mean() if "family_day_cost_eur" in cluster.columns else 0
-        mean_quality = cluster["quality_score"].mean() if "quality_score" in cluster.columns else 0
-        mean_drive = cluster["drive_time_min"].mean() if "drive_time_min" in cluster.columns else 0
+    used_labels: set[str] = set()
+    label_map: dict[int, str] = {}
+    candidates = [
+        lambda p: p["drive"] < medians["drive"] and p["cost"] < medians["cost"] and p["slope"] < medians["slope"],
+        "nah & günstig (klein)",
+        lambda p: p["drive"] < medians["drive"] and p["cost"] < medians["cost"] and p["slope"] >= medians["slope"],
+        "nah & günstig (gross)",
+        lambda p: p["slope"] > medians["slope"] * 2.5 and p["quality"] > medians["quality"],
+        "Grosse Premium-Gebiete",
+        lambda p: p["quality"] > medians["quality"] and p["snow"] > medians["snow"] and p["drive"] > medians["drive"],
+        "schneesicher & hochwertig",
+        lambda p: p["family"] > medians["family"] and p["quality"] > medians["quality"],
+        "familienfreundlich",
+        lambda p: p["slope"] < medians["slope"] and p["drive"] > medians["drive"] * 1.2,
+        "kleine Ferngebiete",
+        lambda p: p["cost"] > medians["cost"] and p["quality"] > medians["quality"],
+        "Premium-Gebiete",
+        lambda p: p["slope"] < medians["slope"] * 0.3,
+        "Minigebiete",
+        lambda p: p["drive"] > medians["drive"],
+        "abgelegene Mittelgebiete",
+    ]
 
-        if mean_cost < df["family_day_cost_eur"].median() and mean_drive < df["drive_time_min"].median():
-            label = "nah & günstig"
-        elif mean_quality > df["quality_score"].quantile(0.75):
-            label = "Premium-Gebiete"
-        elif mean_cost > df["family_day_cost_eur"].quantile(0.75):
-            label = "gross & teuer"
-        elif "family_friendliness" in cluster.columns and cluster["family_friendliness"].mean() > df["family_friendliness"].quantile(0.75):
-            label = "familienfreundlich"
-        elif "snow_reliability" in cluster.columns and cluster["snow_reliability"].mean() > df["snow_reliability"].quantile(0.75):
-            label = "schneesicher & abgelegen"
-        else:
-            label = f"Cluster {cid}"
-        labels.append((cid, label))
+    for cid, prof in profiles:
+        if not prof:
+            label_map[cid] = f"Cluster {cid}"
+            continue
+        assigned = False
+        for i in range(0, len(candidates), 2):
+            test_fn = candidates[i]
+            label = candidates[i + 1]
+            if label in used_labels:
+                continue
+            if test_fn(prof):
+                label_map[cid] = label
+                used_labels.add(label)
+                assigned = True
+                break
+        if not assigned:
+            label_map[cid] = f"Cluster {cid}"
 
-    return dict(labels)
+    return label_map
 
 
 def run_clustering(costs_df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dict]:

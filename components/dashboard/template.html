@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }}</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEEnph5EC5eTiMjCRBGgssCF6oUaYVoiB8JyNlRyifUAOWwrYHT9m3N5Kpkv5FUGZC8LHQN2g==" crossorigin="anonymous"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjfQNHU2MkzTa5eFrAfWMCnz+dYJ4Q==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js" integrity="sha512-TZMqfgoVHHnCPqxDALagkYMVJXRAgbIkO6FOF3JKgmTU9LQuDEKIal5Z0DCBWQP4ECZGE2W4s4D8SwySqfMKg==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly-basic.min.js" crossorigin="anonymous" async></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f4f6f9;color:#1a1a2e}
@@ -24,8 +24,14 @@ header .subtitle{font-size:.85rem;opacity:.7}
 #map{height:500px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);margin-bottom:1rem}
 .section{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:1.2rem;margin-bottom:1rem}
 .section h2{font-size:1.1rem;margin-bottom:.8rem;color:#1a1a2e;border-bottom:2px solid #e0e7ff;padding-bottom:.4rem}
-.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:1rem}
-.chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:.8rem;min-height:360px}
+.charts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:1200px){.charts-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.charts-grid{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:.8rem;min-height:360px;position:relative}
+.chart-info{position:absolute;top:.6rem;right:.6rem;z-index:10;width:22px;height:22px;border-radius:50%;background:#e0e7ff;color:#4f46e5;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:help}
+.chart-info .chart-tooltip{display:none;position:absolute;top:28px;right:0;width:340px;max-height:420px;overflow-y:auto;background:#1a1a2e;color:#e2e8f0;font-size:.78rem;font-weight:400;line-height:1.5;padding:.7rem .8rem;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.25);white-space:normal}
+.chart-info .chart-tooltip b{color:#a5b4fc}
+.chart-info:hover .chart-tooltip{display:block}
 table.top10{width:100%;border-collapse:collapse;font-size:.85rem}
 table.top10 th{background:#e0e7ff;padding:.5rem .6rem;text-align:left;font-weight:600;position:sticky;top:0}
 table.top10 td{padding:.45rem .6rem;border-bottom:1px solid #f0f0f0}
@@ -105,12 +111,12 @@ table.top10 tr:hover{background:#f8fafc}
   <div class="section">
     <h2>Visuelle Exploration</h2>
     <div class="charts-grid">
-      <div class="chart-card" id="chartCostQuality"></div>
-      <div class="chart-card" id="chartTop15"></div>
-      <div class="chart-card" id="chartCountryBox"></div>
-      <div class="chart-card" id="chartPCA"></div>
-      <div class="chart-card" id="chartScoreHist"></div>
-      <div class="chart-card" id="chartCorr"></div>
+      <div class="chart-card" id="chartCostQuality"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>X-Achse:</b> Familientageskosten (EUR) = Skipässe (min aus 2×Erw. + Jugend + Kind oder Familienpass) + Fahrtkosten (2 × Distanz × 0.30 €/km).<br><b>Y-Achse:</b> Qualitätsscore = 0.40 × Schneesicherheit + 0.35 × Familienfreundlichkeit + 0.25 × Grössenfaktor (log-skalierte Pisten-km, 0–10). Alle Scores auf Skala 1–10, vom LLM vergeben.<br><b>Punktgrösse:</b> Pistenkilometer (je grösser der Punkt, desto mehr Pisten).<br><b>Farbe:</b> Land.<br><b>Gestrichelte Linien:</b> Iso-Linien gleichen Preis-Leistungs-Index. Formel: Value Index = Qualitätsscore ÷ (Tageskosten ÷ 100). Punkte oberhalb einer Linie haben bessere Preis-Leistung.<br><b>Filter:</b> Nur Skigebiete im Ranking (≤ 180 min Fahrt ab Singen).</span></span></div>
+      <div class="chart-card" id="chartTop15"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Ranking:</b> Die 15 besten Skigebiete sortiert nach Value Index (= Qualitätsscore ÷ (Tageskosten ÷ 100)). Höherer Index = bessere Preis-Leistung.<br><b>Gestapelte Balken:</b><br>• Skipässe (violett) = min(2×Erw. + Jugend + Kind, Familienpass)<br>• Fahrt (cyan) = 2 × Distanz ab Singen × 0.30 €/km<br>• Mittagessen (orange, falls aktiv) = 4 × (Hauptgericht + Getränk)<br><b>Balkenhöhe:</b> Gesamte Familientageskosten in EUR für 2 Erwachsene + 2 Kinder.</span></span></div>
+      <div class="chart-card" id="chartCountryBox"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Y-Achse:</b> Familientageskosten (EUR) pro Land.<br><b>Aufbau Boxplot:</b><br>• Linie in der Box = Median<br>• Boxgrenzen = 25. und 75. Perzentil (Q1–Q3)<br>• Whisker = bis 1.5 × IQR vom Quartil<br>• Einzelne Punkte = Ausreisser<br><b>Kosten enthalten:</b> Skipässe + Fahrtkosten (+ Mittagessen falls aktiv).<br><b>Hinweis:</b> Zeigt nur Gebiete innerhalb des aktiven Fahrzeit-Filters. Entfernte Länder haben weniger Datenpunkte, weil weniger Gebiete in Reichweite liegen.</span></span></div>
+      <div class="chart-card" id="chartPCA"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Methode:</b> k-Means-Clustering auf 4 Merkmalen: Qualitätsscore, Familientageskosten, Pistenkilometer, Schneesicherheit. Optimale Clusterzahl automatisch per Silhouette-Score bestimmt (k = 3–8).<br><b>Achsen:</b> PC1 und PC2 sind die ersten zwei Hauptkomponenten (PCA) — sie fassen die 4 Merkmale in 2 Dimensionen zusammen. Nähe = Ähnlichkeit im Merkmalsprofil.<br><b>Farbe:</b> Cluster-Zugehörigkeit. Labels beschreiben das statistische Profil jedes Clusters (z.B. «nah &amp; günstig», «Grosse Premium-Gebiete»).<br><b>Hinweis:</b> Umfasst alle Skigebiete, nicht nur die im Ranking.</span></span></div>
+      <div class="chart-card" id="chartScoreHist"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>X-Achse:</b> Score-Wert (Skala 1–10, ganzzahlig).<br><b>Y-Achse:</b> Anzahl Skigebiete mit diesem Score.<br><b>Drei Verteilungen (überlagert):</b><br>• Schnee (blau) = Schneesicherheit — wie zuverlässig ist die Schneelage?<br>• Familie (grün) = Familienfreundlichkeit — Kinderangebote, Übungsgelände, Erreichbarkeit<br>• Preis-Leistung (gelb) = subjektives Preis-Leistungs-Verhältnis<br><b>Quelle:</b> Alle drei Scores wurden vom LLM in 3 unabhängigen Durchläufen vergeben und gemittelt. Schmalere Verteilung = grössere Einigkeit zwischen den Durchläufen.</span></span></div>
+      <div class="chart-card" id="chartCorr"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Was zeigt die Matrix:</b> Pearson-Korrelation (r) zwischen je zwei Kennzahlen. Wertebereich −1 bis +1.<br>• <b>Blau (r → +1):</b> Steigt A, steigt auch B<br>• <b>Rot (r → −1):</b> Steigt A, sinkt B<br>• <b>Weiss (r ≈ 0):</b> Kein linearer Zusammenhang<br><b>Enthaltene Merkmale:</b> Pisten-km, Schneesicherheit, Familienfreundlichkeit, Tagespass Erwachsene (EUR), Fahrzeit (min), Qualitätsscore.<br><b>Beispiel lesen:</b> Zelle Pisten-km / Tagesk. Erw. zeigt, ob grössere Gebiete tendenziell teurer sind.</span></span></div>
     </div>
   </div>
 
@@ -182,9 +188,9 @@ function getFilteredIds() { return new Set(getFiltered().map(r => r.resort_id));
 
 // --- MAP ---
 const map = L.map('map').setView([47.2, 10.5], 7);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-  subdomains: 'abcd', maxZoom: 18
+L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 18
 }).addTo(map);
 
 // Origin marker
@@ -348,14 +354,16 @@ function buildCharts() {
   if (top15.some(r => r.lunch_cost_eur != null)) {
     t2.push({ x: top15.map(r => r.name), y: top15.map(r => r.lunch_cost_eur || 0), name: 'Mittagessen', type: 'bar', marker: { color: '#f97316' } });
   }
+  document.getElementById('chartTop15').style.minHeight = '432px';
   Plotly.newPlot('chartTop15', t2, { ...plotLayout, barmode: 'stack', title: 'Top 15 – Kostenaufschlüsselung',
-    xaxis: { tickangle: -45 }, yaxis: { title: 'EUR' } }, plotCfg);
+    height: 432, margin: { ...plotLayout.margin, b: 120 },
+    xaxis: { tickangle: -45, automargin: true }, yaxis: { title: 'EUR' } }, plotCfg);
 
   // 3 Box per country
   const t3 = countries.map(c => ({
     y: f.filter(r => r.country === c).map(r => r._cost), type: 'box', name: c, marker: { color: colors[c] || '#64748b' }
   }));
-  Plotly.newPlot('chartCountryBox', t3, { ...plotLayout, title: 'Tageskosten je Land', yaxis: { title: 'EUR' }, showlegend: false }, plotCfg);
+  Plotly.newPlot('chartCountryBox', t3, { ...plotLayout, title: 'Tageskosten je Land', yaxis: { title: 'EUR' }, showlegend: true }, plotCfg);
 
   // 4 PCA clusters
   if (clusters.length > 0) {
@@ -439,20 +447,39 @@ function buildQuality() {
 }
 
 // --- RENDER ALL ---
+let plotlyReady = typeof Plotly !== 'undefined';
+let chartsRendered = false;
+
 function render() {
   document.getElementById('driveVal').textContent = document.getElementById('filterDrive').value;
   document.getElementById('resortCount').textContent = getFiltered().length + ' / ' + resorts.length + ' Skigebiete';
   buildMap();
   buildTop10();
-  buildCharts();
-  buildQuality();
+  if (plotlyReady) {
+    buildCharts();
+    buildQuality();
+    chartsRendered = true;
+  }
 }
 
 // Event listeners
 ['filterCountry', 'filterSize', 'filterVariant'].forEach(id => document.getElementById(id).addEventListener('change', render));
 document.getElementById('filterDrive').addEventListener('input', render);
 
+// Initial render: map + table immediately, charts when Plotly loads
 render();
+
+if (!plotlyReady) {
+  const waitForPlotly = setInterval(() => {
+    if (typeof Plotly !== 'undefined') {
+      clearInterval(waitForPlotly);
+      plotlyReady = true;
+      buildCharts();
+      buildQuality();
+      chartsRendered = true;
+    }
+  }, 200);
+}
 </script>
 </body>
 </html>

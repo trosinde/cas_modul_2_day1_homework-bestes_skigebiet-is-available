@@ -68,7 +68,7 @@ clustering:
     - "drive_time_min"
 
 llm:
-  provider: "auto"
+  provider: "openai"
   temperature_factual: 0.3
   temperature_subjective: 0.7
   max_retries: 3

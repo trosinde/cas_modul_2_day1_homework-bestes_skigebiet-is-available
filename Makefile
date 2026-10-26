@@ -3,7 +3,7 @@
        test-geo-matcher test-cost-model test-clustering test-dashboard test-validator \
        resorts-test gastro-test
 
-PYTHON ?= python3
+PYTHON ?= .venv/bin/python
 CONFIG ?= config.yaml
 
 # --- Full pipeline ---
