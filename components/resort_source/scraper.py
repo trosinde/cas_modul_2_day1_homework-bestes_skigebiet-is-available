@@ -189,9 +189,44 @@ def _scrape_country_batch(
     progress: dict,
 ) -> list[tuple[str, dict, dict]]:
     """Scrape all resorts for one country in a dedicated browser. Returns [(rid, data, report_row), ...]."""
-    from playwright.sync_api import sync_playwright
-
     results = []
+    uncached = []
+
+    for resort in resorts:
+        rid = resort["resort_id"]
+        cache_file = cache_dir / f"{rid}.json"
+        if cache_file.exists():
+            data = json.loads(cache_file.read_text("utf-8"))
+            report_row = {
+                "resort_id": rid,
+                "name": resort["name"],
+                "scraping_status": data.get("status", "error"),
+                "source_url": data.get("source_url"),
+                "attempted_url": data.get("slug", ""),
+                "error_detail": data.get("error"),
+            }
+            results.append((rid, data, report_row))
+            with lock:
+                progress[country] = progress.get(country, 0) + 1
+        else:
+            uncached.append(resort)
+
+    if not uncached:
+        return results
+
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        logger.warning("playwright not installed — %d resorts in %s have no cache and cannot be scraped", len(uncached), country)
+        for resort in uncached:
+            rid = resort["resort_id"]
+            results.append((rid, {"status": "error", "error": "playwright not installed"}, {
+                "resort_id": rid, "name": resort["name"], "scraping_status": "error",
+                "error_detail": "playwright not installed",
+            }))
+            with lock:
+                progress[country] = progress.get(country, 0) + 1
+        return results
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -200,23 +235,19 @@ def _scrape_country_batch(
         )
         page = context.new_page()
 
-        for resort in resorts:
+        for resort in uncached:
             rid = resort["resort_id"]
             cache_file = cache_dir / f"{rid}.json"
-
-            if cache_file.exists():
-                data = json.loads(cache_file.read_text("utf-8"))
-            else:
-                slugs = _try_slugs(resort["name"])
-                data = None
-                for slug in slugs:
-                    data = _scrape_resort(page, slug, chf_to_eur)
-                    if data["status"] in ("scraped", "no_prices"):
-                        break
-                if data is None:
-                    data = {"slug": slugs[0] if slugs else rid, "status": "not_found", "error": "No slug matched"}
-                cache_file.write_text(json.dumps(data, ensure_ascii=False), "utf-8")
-                time.sleep(1)
+            slugs = _try_slugs(resort["name"])
+            data = None
+            for slug in slugs:
+                data = _scrape_resort(page, slug, chf_to_eur)
+                if data["status"] in ("scraped", "no_prices"):
+                    break
+            if data is None:
+                data = {"slug": slugs[0] if slugs else rid, "status": "not_found", "error": "No slug matched"}
+            cache_file.write_text(json.dumps(data, ensure_ascii=False), "utf-8")
+            time.sleep(1)
 
             report_row = {
                 "resort_id": rid,

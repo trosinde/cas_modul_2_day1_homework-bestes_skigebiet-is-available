@@ -172,7 +172,14 @@ def fetch_osm_resorts(cfg: dict) -> list[dict]:
     deduped = _dedup_resorts(resorts)
     logger.info("After dedup: %d resorts (from %d)", len(deduped), len(resorts))
 
+    seen_ids: dict[str, int] = {}
     for r in deduped:
-        r["resort_id"] = resort_id(r["country"], r["name"])
+        rid = resort_id(r["country"], r["name"])
+        if rid in seen_ids:
+            seen_ids[rid] += 1
+            rid = f"{rid}-{seen_ids[rid]}"
+        else:
+            seen_ids[rid] = 1
+        r["resort_id"] = rid
 
     return deduped
