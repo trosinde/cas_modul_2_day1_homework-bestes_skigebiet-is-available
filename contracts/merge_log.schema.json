@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merge Log Row",
+  "type": "object",
+  "x-column-order": ["batch_id", "item_id", "record_name", "reason", "detail"],
+  "required": ["batch_id", "record_name", "reason", "detail"],
+  "properties": {
+    "batch_id": { "type": "string" },
+    "item_id": { "type": ["string", "null"] },
+    "record_name": { "type": "string" },
+    "reason": {
+      "type": "string",
+      "enum": ["schema_violation", "unknown_item", "duplicate", "parse_failed"]
+    },
+    "detail": { "type": "string" }
+  },
+  "additionalProperties": false
+}

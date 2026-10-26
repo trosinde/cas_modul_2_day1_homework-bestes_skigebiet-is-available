@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Geo Match Row (matches.csv)",
+  "type": "object",
+  "x-primary-key": ["restaurant_id"],
+  "x-column-order": [
+    "restaurant_id", "resort_id", "distance_km",
+    "second_resort_id", "second_distance_km",
+    "match_status", "hint_agrees"
+  ],
+  "required": ["restaurant_id", "resort_id", "distance_km", "second_resort_id", "second_distance_km", "match_status", "hint_agrees"],
+  "properties": {
+    "restaurant_id": { "type": "string", "pattern": "^[a-z]{2}-.+-.+" },
+    "resort_id": { "type": ["string", "null"] },
+    "distance_km": { "type": "number", "minimum": 0 },
+    "second_resort_id": { "type": ["string", "null"] },
+    "second_distance_km": { "type": ["number", "null"], "minimum": 0 },
+    "match_status": { "type": "string", "enum": ["matched", "ambiguous", "unmatched"] },
+    "hint_agrees": { "type": ["boolean", "null"] }
+  },
+  "additionalProperties": false
+}

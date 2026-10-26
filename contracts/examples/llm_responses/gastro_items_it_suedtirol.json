@@ -1,0 +1,22 @@
+{"restaurants": [
+  {
+    "name": "Gipfelhütte Kronplatz",
+    "country": "IT",
+    "region": "Südtirol",
+    "lat": 46.7600,
+    "lon": 11.9300,
+    "elevation_m": 2200,
+    "restaurant_type": "hut",
+    "ski_area_hint": "Kronplatz"
+  },
+  {
+    "name": "Ristorante Concordia",
+    "country": "IT",
+    "region": "Südtirol",
+    "lat": 46.8100,
+    "lon": 11.9000,
+    "elevation_m": 1600,
+    "restaurant_type": "restaurant",
+    "ski_area_hint": "Kronplatz"
+  }
+]}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Restaurant Table Row (restaurants.csv)",
+  "type": "object",
+  "x-primary-key": ["restaurant_id"],
+  "x-column-order": [
+    "restaurant_id", "name", "country", "region", "lat", "lon",
+    "elevation_m", "restaurant_type", "ski_area_hint",
+    "lunch_main_eur", "lunch_main_eur_sd", "lunch_drink_eur",
+    "price_level", "confidence", "reason_price", "n_runs_valid"
+  ],
+  "required": ["restaurant_id", "name", "country", "region", "lat", "lon", "n_runs_valid"],
+  "properties": {
+    "restaurant_id": { "type": "string", "pattern": "^[a-z]{2}-.+-.+" },
+    "name": { "type": "string", "minLength": 1 },
+    "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "region": { "type": "string", "minLength": 1 },
+    "lat": { "type": "number", "minimum": 43, "maximum": 49 },
+    "lon": { "type": "number", "minimum": 4, "maximum": 17 },
+    "elevation_m": { "type": ["integer", "null"] },
+    "restaurant_type": { "type": ["string", "null"], "enum": ["self_service", "hut", "restaurant", null] },
+    "ski_area_hint": { "type": ["string", "null"] },
+    "lunch_main_eur": { "type": ["number", "null"] },
+    "lunch_main_eur_sd": { "type": ["number", "null"], "minimum": 0 },
+    "lunch_drink_eur": { "type": ["number", "null"] },
+    "price_level": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
+    "confidence": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
+    "reason_price": { "type": ["string", "null"] },
+    "n_runs_valid": { "type": "integer", "minimum": 0, "maximum": 3 }
+  },
+  "additionalProperties": false
+}

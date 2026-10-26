@@ -1,0 +1,42 @@
+{"restaurants": [
+  {
+    "restaurant_id": "ch-ostschweiz-berghaus-prodalp",
+    "lunch_main_eur": 22.00,
+    "lunch_drink_eur": 5.00,
+    "price_level": "medium",
+    "confidence": "high",
+    "reason_price": "Mittelpreisiges Bergrestaurant auf 1570 m mit Schweizer Standardpreisen."
+  },
+  {
+    "restaurant_id": "ch-ostschweiz-panorama-flumserberg",
+    "lunch_main_eur": 19.00,
+    "lunch_drink_eur": 4.50,
+    "price_level": "medium",
+    "confidence": "high",
+    "reason_price": "Selbstbedienung mit typischen Schweizer Bergpreisen."
+  },
+  {
+    "restaurant_id": "it-suedtirol-gipfelhuette-kronplatz",
+    "lunch_main_eur": 18.00,
+    "lunch_drink_eur": 4.00,
+    "price_level": "medium",
+    "confidence": "high",
+    "reason_price": "Typische Südtiroler Hütte mit moderaten Preisen auf dem Kronplatz."
+  },
+  {
+    "restaurant_id": "it-suedtirol-ristorante-concordia",
+    "lunch_main_eur": 24.00,
+    "lunch_drink_eur": 4.50,
+    "price_level": "high",
+    "confidence": "medium",
+    "reason_price": "Gehobenes Restaurant im Kronplatz-Gebiet mit höheren Preisen."
+  },
+  {
+    "restaurant_id": "ch-graubuenden-alphuette-arosa",
+    "lunch_main_eur": 25.00,
+    "lunch_drink_eur": 5.50,
+    "price_level": "high",
+    "confidence": "high",
+    "reason_price": "Traditionelle Alphütte mit gehobenen Schweizer Bergpreisen."
+  }
+]}

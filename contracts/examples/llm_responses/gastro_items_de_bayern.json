@@ -1,0 +1,22 @@
+{"restaurants": [
+  {
+    "name": "Kanzelwand Stube",
+    "country": "DE",
+    "region": "Bayern",
+    "lat": 47.3700,
+    "lon": 10.2500,
+    "elevation_m": 1520,
+    "restaurant_type": "self_service",
+    "ski_area_hint": "Fellhorn/Kanzelwand"
+  },
+  {
+    "name": "Gasthaus Alpenblick",
+    "country": "DE",
+    "region": "Bayern",
+    "lat": 48.0000,
+    "lon": 10.0000,
+    "elevation_m": 650,
+    "restaurant_type": "restaurant",
+    "ski_area_hint": null
+  }
+]}

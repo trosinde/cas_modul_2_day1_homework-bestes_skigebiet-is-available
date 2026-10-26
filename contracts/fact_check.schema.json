@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fact Check Row (fact_check_sample.csv)",
+  "type": "object",
+  "x-primary-key": ["item_type", "item_id", "attribute"],
+  "x-column-order": [
+    "item_type", "item_id", "attribute", "llm_value", "unit",
+    "target_value", "source_url", "checked_on", "note"
+  ],
+  "required": ["item_type", "item_id", "attribute", "llm_value", "unit"],
+  "properties": {
+    "item_type": { "type": "string", "enum": ["resort", "restaurant", "match"] },
+    "item_id": { "type": "string", "minLength": 1 },
+    "attribute": { "type": "string", "minLength": 1 },
+    "llm_value": { "type": "string" },
+    "unit": { "type": "string" },
+    "target_value": { "type": ["string", "null"] },
+    "source_url": { "type": ["string", "null"] },
+    "checked_on": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "note": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

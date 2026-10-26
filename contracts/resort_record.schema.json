@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resort Record (LLM output)",
+  "type": "object",
+  "required": [
+    "name", "country", "region", "lat", "lon",
+    "top_elevation_m", "base_elevation_m", "slope_km",
+    "day_pass_adult_eur", "day_pass_youth16_eur", "day_pass_child13_eur",
+    "age_category_16", "age_category_13",
+    "drive_time_min", "drive_distance_km",
+    "snow_reliability", "family_friendliness", "value_for_money",
+    "confidence", "reason_snow", "reason_family", "reason_value"
+  ],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "region": { "type": "string", "minLength": 1 },
+    "lat": { "type": "number", "minimum": 43, "maximum": 49 },
+    "lon": { "type": "number", "minimum": 4, "maximum": 17 },
+    "top_elevation_m": { "type": "integer", "minimum": 500, "maximum": 4000 },
+    "base_elevation_m": { "type": "integer", "minimum": 300, "maximum": 2500 },
+    "slope_km": { "type": "number", "minimum": 1, "maximum": 600 },
+    "day_pass_adult_eur": { "type": "number", "minimum": 20, "maximum": 120 },
+    "day_pass_youth16_eur": { "type": "number", "minimum": 0, "maximum": 120 },
+    "day_pass_child13_eur": { "type": "number", "minimum": 0, "maximum": 100 },
+    "age_category_16": { "type": "string", "minLength": 1 },
+    "age_category_13": { "type": "string", "minLength": 1 },
+    "family_pass_eur": { "type": ["number", "null"], "minimum": 0 },
+    "family_pass_conditions": { "type": ["string", "null"] },
+    "drive_time_min": { "type": "number", "minimum": 30, "maximum": 600 },
+    "drive_distance_km": { "type": "number", "minimum": 20, "maximum": 700 },
+    "snow_reliability": { "type": "integer", "minimum": 1, "maximum": 10 },
+    "family_friendliness": { "type": "integer", "minimum": 1, "maximum": 10 },
+    "value_for_money": { "type": "integer", "minimum": 1, "maximum": 10 },
+    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+    "reason_snow": { "type": "string", "minLength": 1 },
+    "reason_family": { "type": "string", "minLength": 1 },
+    "reason_value": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

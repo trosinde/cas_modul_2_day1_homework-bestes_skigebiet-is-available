@@ -1,0 +1,11 @@
+restaurant_id,name,country,region,lat,lon,elevation_m,restaurant_type,ski_area_hint,lunch_main_eur,lunch_main_eur_sd,lunch_drink_eur,price_level,confidence,reason_price,n_runs_valid
+ch-ostschweiz-berghaus-prodalp,Berghaus Prodalp,CH,Ostschweiz,47.0950,9.3000,1570,restaurant,Flumserberg,22.50,1.5,5.00,medium,high,Mittelpreisiges Bergrestaurant auf 1570 m mit Schweizer Standardpreisen.,3
+ch-ostschweiz-panorama-flumserberg,Panorama Restaurant,CH,Ostschweiz,47.1200,9.3100,1850,self_service,Flumserberg,19.00,1.0,4.50,medium,high,Selbstbedienung mit typischen Schweizer Bergpreisen.,3
+it-suedtirol-gipfelhuette-kronplatz,Gipfelhütte Kronplatz,IT,Südtirol,46.7600,11.9300,2200,hut,Kronplatz,18.00,1.0,4.00,medium,high,Typische Südtiroler Hütte mit moderaten Preisen auf dem Kronplatz.,3
+it-suedtirol-ristorante-concordia,Ristorante Concordia,IT,Südtirol,46.8100,11.9000,1600,restaurant,Kronplatz,24.00,2.0,4.50,high,medium,Gehobenes Restaurant im Kronplatz-Gebiet mit höheren Preisen.,3
+ch-graubuenden-alphuette-arosa,Alphütte Arosa,CH,Graubünden,46.9000,9.3400,1950,hut,Arosa Lenzerheide,25.00,1.5,5.50,high,high,Traditionelle Alphütte mit gehobenen Schweizer Bergpreisen.,3
+de-bayern-kanzelwand-stube,Kanzelwand Stube,DE,Bayern,47.3700,10.2500,1520,self_service,Fellhorn/Kanzelwand,15.00,0.5,3.50,low,high,Günstige Selbstbedienung im Allgäu unter dem Alpendurchschnitt.,3
+ch-ostschweiz-alp-tannenboden,Alp Tannenboden,CH,Ostschweiz,47.0237,9.2967,1400,hut,Flumserberg,21.00,1.0,5.00,medium,medium,Berghütte zwischen Flumserberg und Arosa mit mittleren Preisen.,3
+ch-ostschweiz-bergbeizli-seeblick,Bergbeizli Seeblick,CH,Ostschweiz,47.0180,9.3050,1350,restaurant,Arosa Lenzerheide,23.00,1.5,5.00,medium,medium,Restaurant in der Region Ostschweiz mit durchschnittlichen Preisen.,3
+de-bayern-gasthaus-alpenblick,Gasthaus Alpenblick,DE,Bayern,48.0000,10.0000,650,restaurant,,16.00,1.0,3.50,low,high,Gasthaus im Voralpenland weit entfernt von Skigebieten.,3
+ch-tessin-ristorante-bellavista,Ristorante Bellavista,CH,Tessin,45.5000,8.5000,400,restaurant,,20.00,1.5,4.50,medium,medium,Restaurant im Tessin ohne Bezug zu Skigebieten.,3

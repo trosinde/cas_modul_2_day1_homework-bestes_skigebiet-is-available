@@ -1,0 +1,42 @@
+{"restaurants": [
+  {
+    "restaurant_id": "de-bayern-kanzelwand-stube",
+    "lunch_main_eur": 15.00,
+    "lunch_drink_eur": 3.50,
+    "price_level": "low",
+    "confidence": "high",
+    "reason_price": "Günstige Selbstbedienung im Allgäu unter dem Alpendurchschnitt."
+  },
+  {
+    "restaurant_id": "ch-ostschweiz-alp-tannenboden",
+    "lunch_main_eur": 21.00,
+    "lunch_drink_eur": 5.00,
+    "price_level": "medium",
+    "confidence": "medium",
+    "reason_price": "Berghütte zwischen Flumserberg und Arosa mit mittleren Preisen."
+  },
+  {
+    "restaurant_id": "ch-ostschweiz-bergbeizli-seeblick",
+    "lunch_main_eur": 23.00,
+    "lunch_drink_eur": 5.00,
+    "price_level": "medium",
+    "confidence": "medium",
+    "reason_price": "Restaurant in der Region Ostschweiz mit durchschnittlichen Preisen."
+  },
+  {
+    "restaurant_id": "de-bayern-gasthaus-alpenblick",
+    "lunch_main_eur": 16.00,
+    "lunch_drink_eur": 3.50,
+    "price_level": "low",
+    "confidence": "high",
+    "reason_price": "Gasthaus im Voralpenland weit entfernt von Skigebieten."
+  },
+  {
+    "restaurant_id": "ch-tessin-ristorante-bellavista",
+    "lunch_main_eur": 20.00,
+    "lunch_drink_eur": 4.50,
+    "price_level": "medium",
+    "confidence": "medium",
+    "reason_price": "Restaurant im Tessin ohne Bezug zu Skigebieten."
+  }
+]}

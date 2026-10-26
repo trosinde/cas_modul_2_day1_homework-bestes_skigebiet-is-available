@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEEnph5EC5eTiMjCRBGgssCF6oUaYVoiB8JyNlRyifUAOWwrYHT9m3N5Kpkv5FUGZC8LHQN2g==" crossorigin="anonymous"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjfQNHU2MkzTa5eFrAfWMCnz+dYJ4Q==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js" integrity="sha512-TZMqfgoVHHnCPqxDALagkYMVJXRAgbIkO6FOF3JKgmTU9LQuDEKIal5Z0DCBWQP4ECZGE2W4s4D8SwySqfMKg==" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f4f6f9;color:#1a1a2e}
+header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:#fff;padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+header h1{font-size:1.4rem;font-weight:600}
+header .subtitle{font-size:.85rem;opacity:.7}
+.layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:260px;background:#16213e;color:#cbd5e1;padding:1rem;flex-shrink:0;overflow-y:auto}
+.sidebar h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin:1rem 0 .4rem}
+.sidebar label{display:block;font-size:.82rem;margin:.25rem 0}
+.sidebar select,.sidebar input[type=range]{width:100%;margin:.2rem 0 .6rem;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:4px;padding:.3rem}
+.sidebar select{appearance:auto}
+.sidebar .range-val{font-size:.75rem;color:#94a3b8;text-align:right}
+.main{flex:1;padding:1rem;overflow-x:hidden}
+#map{height:500px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);margin-bottom:1rem}
+.section{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:1.2rem;margin-bottom:1rem}
+.section h2{font-size:1.1rem;margin-bottom:.8rem;color:#1a1a2e;border-bottom:2px solid #e0e7ff;padding-bottom:.4rem}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:1rem}
+.chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:.8rem;min-height:360px}
+table.top10{width:100%;border-collapse:collapse;font-size:.85rem}
+table.top10 th{background:#e0e7ff;padding:.5rem .6rem;text-align:left;font-weight:600;position:sticky;top:0}
+table.top10 td{padding:.45rem .6rem;border-bottom:1px solid #f0f0f0}
+table.top10 tr:hover{background:#f8fafc}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-weight:700;font-size:.8rem;color:#fff}
+.rank-1{background:#f59e0b}.rank-2{background:#94a3b8}.rank-3{background:#b45309}
+.rank-other{background:#cbd5e1;color:#475569}
+.cost-bar{display:flex;height:18px;border-radius:3px;overflow:hidden;min-width:80px}
+.cost-bar .seg-pass{background:#6366f1}.cost-bar .seg-travel{background:#22d3ee}.cost-bar .seg-lunch{background:#f97316}
+.legend-row{display:flex;gap:1rem;margin:.6rem 0;font-size:.78rem;flex-wrap:wrap}
+.legend-swatch{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.quality-bar{display:flex;gap:1rem;font-size:.78rem;flex-wrap:wrap;margin:.5rem 0}
+.quality-bar span{padding:2px 8px;border-radius:10px;font-weight:500}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;margin-bottom:1rem}
+.stat-card{background:#f8fafc;border-radius:6px;padding:.8rem;text-align:center}
+.stat-card .val{font-size:1.6rem;font-weight:700;color:#4f46e5}
+.stat-card .lbl{font-size:.75rem;color:#64748b;margin-top:.2rem}
+@media(max-width:900px){.layout{flex-direction:column}.sidebar{width:100%;max-height:none;display:flex;flex-wrap:wrap;gap:.5rem;padding:.8rem}.sidebar h3{width:100%}.sidebar label{flex:1;min-width:120px}#map{height:350px}.charts-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Skigebiete Familien-Ranking</h1>
+    <div class="subtitle">Bestes Preis-Leistungs-Verhältnis ab Singen (Hohentwiel) &middot; 2 Erw. + Kinder 16 &amp; 13</div>
+  </div>
+  <div class="subtitle" id="resortCount"></div>
+</header>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <h3>Filter</h3>
+  <label>Land
+    <select id="filterCountry"><option value="">Alle</option></select>
+  </label>
+  <label>Grössenklasse
+    <select id="filterSize"><option value="">Alle</option><option value="small">Klein (&lt;30 km)</option><option value="medium">Mittel (30–100 km)</option><option value="large">Gross (&gt;100 km)</option></select>
+  </label>
+  <label>Max. Fahrzeit
+    <input type="range" id="filterDrive" min="30" max="600" step="10" value="180">
+    <div class="range-val"><span id="driveVal">180</span> min</div>
+  </label>
+  <label>Kostenvariante
+    <select id="filterVariant"><option value="v2">v2 – Pässe + Fahrt</option><option value="v1">v1 – nur Pässe</option><option value="v3">v3 – + Mittagessen</option></select>
+  </label>
+
+  <h3>Kartenebenen</h3>
+  <label><input type="checkbox" id="layerResorts" checked> Skigebiete</label>
+  <label><input type="checkbox" id="layerRestaurants" checked> Restaurants</label>
+  <label><input type="checkbox" id="layerMatches" checked> Zuordnungen</label>
+  <label><input type="checkbox" id="layerRadius"> Radien</label>
+</aside>
+
+<main class="main">
+
+  <div id="map"></div>
+
+  <!-- Top 10 Answer -->
+  <div class="section" id="answerSection">
+    <h2>Ergebnis: Top 10 Skigebiete</h2>
+    <div class="legend-row">
+      <span><span class="legend-swatch" style="background:#6366f1"></span>Skipässe</span>
+      <span><span class="legend-swatch" style="background:#22d3ee"></span>Fahrt</span>
+      <span><span class="legend-swatch" style="background:#f97316"></span>Mittagessen</span>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="top10">
+      <thead><tr><th>#</th><th>Skigebiet</th><th>Land</th><th>Pisten</th><th>Fahrzeit</th><th>Kosten</th><th>Aufschlüsselung</th><th>Qualität</th><th>Index</th></tr></thead>
+      <tbody id="top10Body"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section">
+    <h2>Visuelle Exploration</h2>
+    <div class="charts-grid">
+      <div class="chart-card" id="chartCostQuality"></div>
+      <div class="chart-card" id="chartTop15"></div>
+      <div class="chart-card" id="chartCountryBox"></div>
+      <div class="chart-card" id="chartPCA"></div>
+      <div class="chart-card" id="chartScoreHist"></div>
+      <div class="chart-card" id="chartCorr"></div>
+    </div>
+  </div>
+
+  <!-- Data Quality -->
+  <div class="section" id="qualitySection">
+    <h2>Datenqualität</h2>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="charts-grid">
+      <div class="chart-card" id="chartConfidence"></div>
+      <div class="chart-card" id="chartMatchDist"></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+const DATA = {{ data_json }};
+const resorts = DATA.resorts || [];
+const clusters = DATA.clusters || [];
+const restaurants = DATA.restaurants || [];
+const matches = DATA.matches || [];
+const resortLunch = DATA.resort_lunch || [];
+const CONFIG = DATA.config || {};
+
+// --- Helpers ---
+function valueColor(vi) {
+  if (vi == null) return '#94a3b8';
+  if (vi >= 4) return '#16a34a';
+  if (vi >= 3) return '#65a30d';
+  if (vi >= 2) return '#ca8a04';
+  if (vi >= 1) return '#ea580c';
+  return '#dc2626';
+}
+function priceColor(pl) {
+  if (pl === 'low') return '#22c55e';
+  if (pl === 'medium') return '#eab308';
+  return '#ef4444';
+}
+function statusColor(s) {
+  if (s === 'matched') return '#6366f1';
+  if (s === 'ambiguous') return '#eab308';
+  return '#ef4444';
+}
+
+// --- Populate filters ---
+const countries = [...new Set(resorts.map(r => r.country))].sort();
+const sel = document.getElementById('filterCountry');
+countries.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+
+// --- Filter logic ---
+function getFiltered() {
+  const country = document.getElementById('filterCountry').value;
+  const size = document.getElementById('filterSize').value;
+  const maxDrive = +document.getElementById('filterDrive').value;
+  const variant = document.getElementById('filterVariant').value;
+  return resorts.filter(r => {
+    if (country && r.country !== country) return false;
+    if (size && r.size_class !== size) return false;
+    if (r.drive_time_min > maxDrive) return false;
+    return true;
+  }).map(r => {
+    const costKey = 'day_cost_' + variant + '_eur';
+    const viKey = 'value_index_' + variant;
+    return { ...r, _cost: r[costKey] ?? r.family_day_cost_eur, _vi: r[viKey] ?? r.value_index };
+  });
+}
+function getFilteredIds() { return new Set(getFiltered().map(r => r.resort_id)); }
+
+// --- MAP ---
+const map = L.map('map').setView([47.2, 10.5], 7);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd', maxZoom: 18
+}).addTo(map);
+
+// Origin marker
+if (CONFIG.origin) {
+  L.marker([CONFIG.origin.lat, CONFIG.origin.lon], {
+    icon: L.divIcon({ className: '', html: '<div style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.3)">Singen</div>', iconSize: [60, 24], iconAnchor: [30, 12] })
+  }).addTo(map);
+}
+
+const layerResorts = L.layerGroup().addTo(map);
+const layerRestaurants = L.layerGroup().addTo(map);
+const layerMatches = L.layerGroup().addTo(map);
+const layerRadius = L.layerGroup();
+
+function buildMap() {
+  layerResorts.clearLayers();
+  layerRestaurants.clearLayers();
+  layerMatches.clearLayers();
+  layerRadius.clearLayers();
+
+  const filtered = getFiltered();
+  const fids = getFilteredIds();
+
+  // Rank within filtered
+  const ranked = filtered.filter(r => r.in_ranking).sort((a, b) => (b._vi || 0) - (a._vi || 0));
+
+  // Resorts
+  filtered.forEach(r => {
+    if (r.lat == null || r.lon == null) return;
+    const rank = ranked.findIndex(x => x.resort_id === r.resort_id) + 1;
+    const radius = Math.max(5, Math.min(18, (r.slope_km || 50) / 10));
+    const circle = L.circleMarker([r.lat, r.lon], {
+      radius: radius, fillColor: valueColor(r._vi), fillOpacity: .85,
+      color: rank <= 5 ? '#1e1b4b' : '#fff', weight: rank <= 5 ? 3 : 1
+    });
+    let popup = `<b>${rank > 0 ? '#' + rank + ' ' : ''}${r.name}</b><br>`;
+    popup += `${r.country} · ${r.slope_km} km Pisten · ${r.size_class}<br>`;
+    popup += `Tageskosten: <b>${(r._cost || 0).toFixed(0)} EUR</b> (Pässe ${(r.family_pass_cost_eur||0).toFixed(0)}, Fahrt ${(r.travel_cost_eur||0).toFixed(0)}${r.lunch_cost_eur != null ? ', Essen ' + r.lunch_cost_eur.toFixed(0) : ''})<br>`;
+    popup += `Qualität: ${(r.quality_score||0).toFixed(1)} · Index: ${(r._vi||0).toFixed(2)}<br>`;
+    popup += `Fahrzeit: ${r.drive_time_min} min · Schnee: ${r.snow_reliability}/10 · Familie: ${r.family_friendliness}/10`;
+    if (r.reason_snow) popup += `<br><i>${r.reason_snow}</i>`;
+    circle.bindPopup(popup, { maxWidth: 340 });
+
+    if (rank > 0 && rank <= 5) {
+      const label = L.marker([r.lat, r.lon], {
+        icon: L.divIcon({ className: '', html: `<div style="background:#4f46e5;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.4)">${rank}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] })
+      });
+      layerResorts.addLayer(label);
+    }
+    layerResorts.addLayer(circle);
+
+    // Radius circle
+    const radiusKm = (CONFIG.radius_km || {})[r.size_class] || 8;
+    const rc = L.circle([r.lat, r.lon], { radius: radiusKm * 1000, fill: false, color: '#94a3b8', weight: 1, dashArray: '6 4' });
+    layerRadius.addLayer(rc);
+  });
+
+  // Restaurants
+  const restById = {};
+  restaurants.forEach(rest => {
+    restById[rest.restaurant_id] = rest;
+    if (rest.lat == null || rest.lon == null) return;
+    const dot = L.circleMarker([rest.lat, rest.lon], {
+      radius: 4, fillColor: priceColor(rest.price_level), fillOpacity: .8, color: '#fff', weight: .5
+    });
+    let popup = `<b>${rest.name}</b><br>${rest.restaurant_type} · ${rest.elevation_m} m<br>`;
+    popup += `Hauptgericht: ${rest.lunch_main_eur} EUR · Getränk: ${rest.lunch_drink_eur} EUR<br>`;
+    popup += `Preisniveau: ${rest.price_level}`;
+    if (rest.ski_area_hint) popup += `<br>Ski-Hinweis: ${rest.ski_area_hint}`;
+    dot.bindPopup(popup, { maxWidth: 280 });
+    layerRestaurants.addLayer(dot);
+  });
+
+  // Match lines
+  const resortById = {};
+  resorts.forEach(r => { resortById[r.resort_id] = r; });
+  matches.forEach(m => {
+    const rest = restById[m.restaurant_id];
+    const resort = resortById[m.resort_id];
+    if (!rest || rest.lat == null) return;
+    if (m.match_status === 'unmatched') {
+      const dot = L.circleMarker([rest.lat, rest.lon], { radius: 6, fill: false, color: '#ef4444', weight: 2 });
+      layerMatches.addLayer(dot);
+      return;
+    }
+    if (!resort || resort.lat == null) return;
+    const line = L.polyline([[rest.lat, rest.lon], [resort.lat, resort.lon]], {
+      color: statusColor(m.match_status), weight: 1.5,
+      dashArray: m.match_status === 'ambiguous' ? '6 4' : null, opacity: .6
+    });
+    line.bindPopup(`${rest.name} → ${resort.name}<br>${m.distance_km} km · ${m.match_status}`);
+    layerMatches.addLayer(line);
+  });
+}
+
+// Layer toggle
+document.getElementById('layerResorts').addEventListener('change', e => { e.target.checked ? map.addLayer(layerResorts) : map.removeLayer(layerResorts); });
+document.getElementById('layerRestaurants').addEventListener('change', e => { e.target.checked ? map.addLayer(layerRestaurants) : map.removeLayer(layerRestaurants); });
+document.getElementById('layerMatches').addEventListener('change', e => { e.target.checked ? map.addLayer(layerMatches) : map.removeLayer(layerMatches); });
+document.getElementById('layerRadius').addEventListener('change', e => { e.target.checked ? map.addLayer(layerRadius) : map.removeLayer(layerRadius); });
+
+// --- TOP 10 TABLE ---
+function buildTop10() {
+  const filtered = getFiltered();
+  const ranked = filtered.filter(r => r.in_ranking).sort((a, b) => (b._vi || 0) - (a._vi || 0)).slice(0, 10);
+  const maxCost = Math.max(...ranked.map(r => r._cost || 0), 1);
+  const tbody = document.getElementById('top10Body');
+  tbody.innerHTML = '';
+  ranked.forEach((r, i) => {
+    const rank = i + 1;
+    const cls = rank <= 3 ? 'rank-' + rank : 'rank-other';
+    const passW = ((r.family_pass_cost_eur || 0) / maxCost * 100).toFixed(1);
+    const travW = ((r.travel_cost_eur || 0) / maxCost * 100).toFixed(1);
+    const lunchW = ((r.lunch_cost_eur || 0) / maxCost * 100).toFixed(1);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><span class="rank-badge ${cls}">${rank}</span></td>` +
+      `<td><b>${r.name}</b></td><td>${r.country}</td><td>${r.slope_km} km</td>` +
+      `<td>${r.drive_time_min} min</td><td><b>${(r._cost||0).toFixed(0)}</b> EUR</td>` +
+      `<td><div class="cost-bar" style="width:${Math.round((r._cost||0)/maxCost*180)}px">` +
+      `<div class="seg-pass" style="width:${passW}%"></div><div class="seg-travel" style="width:${travW}%"></div>` +
+      `${r.lunch_cost_eur != null ? '<div class="seg-lunch" style="width:' + lunchW + '%"></div>' : ''}` +
+      `</div></td>` +
+      `<td>${(r.quality_score||0).toFixed(1)}</td><td><b>${(r._vi||0).toFixed(2)}</b></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// --- CHARTS ---
+const plotCfg = { responsive: true, displayModeBar: false };
+const plotLayout = { margin: { t: 40, r: 20, b: 50, l: 50 }, font: { family: '-apple-system,sans-serif', size: 12 }, paper_bgcolor: 'transparent', plot_bgcolor: '#fafbfc' };
+
+function buildCharts() {
+  const f = getFiltered();
+  const ranked = f.filter(r => r.in_ranking);
+
+  // 1 Cost vs Quality with iso-value lines
+  const colors = { CH: '#dc2626', AT: '#2563eb', DE: '#16a34a', IT: '#9333ea', FR: '#ea580c' };
+  const traces1 = countries.map(c => {
+    const sub = ranked.filter(r => r.country === c);
+    return { x: sub.map(r => r._cost), y: sub.map(r => r.quality_score), text: sub.map(r => r.name),
+      mode: 'markers', type: 'scatter', name: c,
+      marker: { size: sub.map(r => Math.max(6, Math.sqrt(r.slope_km || 1) * 2)), color: colors[c] || '#64748b', opacity: .7 },
+      hovertemplate: '%{text}<br>%{x:.0f} EUR · Q %{y:.1f}<extra></extra>' };
+  });
+  // Iso-value lines
+  const maxC = Math.max(...ranked.map(r => r._cost || 0), 400);
+  [1, 2, 3, 4].forEach(vi => {
+    traces1.push({ x: [50, maxC], y: [vi * 50 / 100, vi * maxC / 100], mode: 'lines', type: 'scatter',
+      line: { color: '#e2e8f0', width: 1, dash: 'dot' }, showlegend: false,
+      hovertemplate: `Index = ${vi}<extra></extra>` });
+  });
+  Plotly.newPlot('chartCostQuality', traces1, { ...plotLayout, title: 'Tageskosten vs. Qualität',
+    xaxis: { title: 'Tageskosten (EUR)' }, yaxis: { title: 'Qualitätsscore' } }, plotCfg);
+
+  // 2 Top 15 stacked bar
+  const top15 = ranked.sort((a, b) => (b._vi || 0) - (a._vi || 0)).slice(0, 15);
+  const t2 = [
+    { x: top15.map(r => r.name), y: top15.map(r => r.family_pass_cost_eur), name: 'Skipässe', type: 'bar', marker: { color: '#6366f1' } },
+    { x: top15.map(r => r.name), y: top15.map(r => r.travel_cost_eur), name: 'Fahrt', type: 'bar', marker: { color: '#22d3ee' } },
+  ];
+  if (top15.some(r => r.lunch_cost_eur != null)) {
+    t2.push({ x: top15.map(r => r.name), y: top15.map(r => r.lunch_cost_eur || 0), name: 'Mittagessen', type: 'bar', marker: { color: '#f97316' } });
+  }
+  Plotly.newPlot('chartTop15', t2, { ...plotLayout, barmode: 'stack', title: 'Top 15 – Kostenaufschlüsselung',
+    xaxis: { tickangle: -45 }, yaxis: { title: 'EUR' } }, plotCfg);
+
+  // 3 Box per country
+  const t3 = countries.map(c => ({
+    y: f.filter(r => r.country === c).map(r => r._cost), type: 'box', name: c, marker: { color: colors[c] || '#64748b' }
+  }));
+  Plotly.newPlot('chartCountryBox', t3, { ...plotLayout, title: 'Tageskosten je Land', yaxis: { title: 'EUR' }, showlegend: false }, plotCfg);
+
+  // 4 PCA clusters
+  if (clusters.length > 0) {
+    const clusterLabels = [...new Set(clusters.map(c => c.cluster_label))];
+    const clColors = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+    const t4 = clusterLabels.map((cl, i) => {
+      const sub = clusters.filter(c => c.cluster_label === cl);
+      return { x: sub.map(c => c.pc1), y: sub.map(c => c.pc2), text: sub.map(c => c.resort_id),
+        mode: 'markers', type: 'scatter', name: cl,
+        marker: { size: 9, color: clColors[i % clColors.length], opacity: .8 },
+        hovertemplate: '%{text}<extra></extra>' };
+    });
+    Plotly.newPlot('chartPCA', t4, { ...plotLayout, title: 'PCA – Cluster', xaxis: { title: 'PC1' }, yaxis: { title: 'PC2' } }, plotCfg);
+  } else {
+    document.getElementById('chartPCA').innerHTML = '<p style="padding:2rem;color:#94a3b8">Keine Clusterdaten vorhanden</p>';
+  }
+
+  // 5 Score histograms
+  const t5 = [
+    { x: f.map(r => r.snow_reliability), type: 'histogram', name: 'Schnee', opacity: .6, marker: { color: '#3b82f6' } },
+    { x: f.map(r => r.family_friendliness), type: 'histogram', name: 'Familie', opacity: .6, marker: { color: '#22c55e' } },
+    { x: f.map(r => r.value_for_money), type: 'histogram', name: 'Preis-Leistung', opacity: .6, marker: { color: '#f59e0b' } },
+  ];
+  Plotly.newPlot('chartScoreHist', t5, { ...plotLayout, barmode: 'overlay', title: 'Score-Verteilungen',
+    xaxis: { title: 'Score (1–10)', dtick: 1 }, yaxis: { title: 'Anzahl' } }, plotCfg);
+
+  // 6 Correlation heatmap
+  const corrCols = ['slope_km', 'snow_reliability', 'family_friendliness', 'day_pass_adult_eur', 'drive_time_min', 'quality_score'];
+  const corrLabels = ['Pisten-km', 'Schnee', 'Familie', 'Tagesk. Erw.', 'Fahrzeit', 'Qualität'];
+  const matrix = corrCols.map(c1 => corrCols.map(c2 => {
+    const v1 = f.map(r => r[c1]).filter(v => v != null);
+    const v2 = f.map(r => r[c2]).filter(v => v != null);
+    const n = Math.min(v1.length, v2.length);
+    if (n < 3) return 0;
+    const m1 = v1.slice(0, n).reduce((a, b) => a + b, 0) / n;
+    const m2 = v2.slice(0, n).reduce((a, b) => a + b, 0) / n;
+    const s1 = Math.sqrt(v1.slice(0, n).reduce((a, b) => a + (b - m1) ** 2, 0) / n) || 1;
+    const s2 = Math.sqrt(v2.slice(0, n).reduce((a, b) => a + (b - m2) ** 2, 0) / n) || 1;
+    return v1.slice(0, n).reduce((a, b, i) => a + (b - m1) * (v2[i] - m2), 0) / n / s1 / s2;
+  }));
+  Plotly.newPlot('chartCorr', [{ z: matrix, x: corrLabels, y: corrLabels, type: 'heatmap',
+    colorscale: [[0, '#dc2626'], [.5, '#fff'], [1, '#2563eb']], zmin: -1, zmax: 1 }],
+    { ...plotLayout, title: 'Korrelationsmatrix', margin: { ...plotLayout.margin, l: 100, b: 100 } }, plotCfg);
+}
+
+// --- DATA QUALITY ---
+function buildQuality() {
+  const f = getFiltered();
+  const grid = document.getElementById('statGrid');
+  grid.innerHTML = '';
+
+  const stats = [
+    { val: f.length, lbl: 'Skigebiete' },
+    { val: f.filter(r => r.in_ranking).length, lbl: 'Im Ranking' },
+    { val: restaurants.length, lbl: 'Restaurants' },
+    { val: matches.filter(m => m.match_status === 'matched').length, lbl: 'Zugeordnet' },
+  ];
+  stats.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'stat-card';
+    d.innerHTML = `<div class="val">${s.val}</div><div class="lbl">${s.lbl}</div>`;
+    grid.appendChild(d);
+  });
+
+  // Confidence distribution
+  const confCounts = { low: 0, medium: 0, high: 0 };
+  f.forEach(r => { if (r.confidence) confCounts[r.confidence]++; });
+  Plotly.newPlot('chartConfidence', [{
+    x: Object.keys(confCounts), y: Object.values(confCounts), type: 'bar',
+    marker: { color: ['#ef4444', '#eab308', '#22c55e'] }
+  }], { ...plotLayout, title: 'Confidence-Verteilung', yaxis: { title: 'Anzahl' }, showlegend: false }, plotCfg);
+
+  // Match distance distribution
+  if (matches.length > 0) {
+    const dists = matches.filter(m => m.distance_km != null && m.match_status !== 'unmatched').map(m => m.distance_km);
+    Plotly.newPlot('chartMatchDist', [{ x: dists, type: 'histogram', marker: { color: '#6366f1' } }],
+      { ...plotLayout, title: 'Zuordnungsdistanzen (km)', xaxis: { title: 'km' }, yaxis: { title: 'Anzahl' } }, plotCfg);
+  } else {
+    document.getElementById('chartMatchDist').innerHTML = '<p style="padding:2rem;color:#94a3b8">Keine Zuordnungsdaten</p>';
+  }
+}
+
+// --- RENDER ALL ---
+function render() {
+  document.getElementById('driveVal').textContent = document.getElementById('filterDrive').value;
+  document.getElementById('resortCount').textContent = getFiltered().length + ' / ' + resorts.length + ' Skigebiete';
+  buildMap();
+  buildTop10();
+  buildCharts();
+  buildQuality();
+}
+
+// Event listeners
+['filterCountry', 'filterSize', 'filterVariant'].forEach(id => document.getElementById(id).addEventListener('change', render));
+document.getElementById('filterDrive').addEventListener('input', render);
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{"restaurants": [
+  {
+    "name": "Berghaus Prodalp",
+    "country": "CH",
+    "region": "Ostschweiz",
+    "lat": 47.0950,
+    "lon": 9.3000,
+    "elevation_m": 1570,
+    "restaurant_type": "restaurant",
+    "ski_area_hint": "Flumserberg"
+  },
+  {
+    "name": "Panorama Restaurant",
+    "country": "CH",
+    "region": "Ostschweiz",
+    "lat": 47.1200,
+    "lon": 9.3100,
+    "elevation_m": 1850,
+    "restaurant_type": "self_service",
+    "ski_area_hint": "Flumserberg"
+  },
+  {
+    "name": "Alp Tannenboden",
+    "country": "CH",
+    "region": "Ostschweiz",
+    "lat": 47.0237,
+    "lon": 9.2967,
+    "elevation_m": 1400,
+    "restaurant_type": "hut",
+    "ski_area_hint": "Flumserberg"
+  },
+  {
+    "name": "Bergbeizli Seeblick",
+    "country": "CH",
+    "region": "Ostschweiz",
+    "lat": 47.0180,
+    "lon": 9.3050,
+    "elevation_m": 1350,
+    "restaurant_type": "restaurant",
+    "ski_area_hint": "Arosa Lenzerheide"
+  }
+]}

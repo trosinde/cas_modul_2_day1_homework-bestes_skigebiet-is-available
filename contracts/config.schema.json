@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Configuration",
+  "type": "object",
+  "required": [
+    "schema_version", "origin", "family", "resorts", "gastro", "matching",
+    "costs", "quality", "clustering", "llm", "acceptance",
+    "include_lunch_cost", "data_dir", "log_dir", "report_dir"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "origin": {
+      "type": "object",
+      "required": ["city", "lat", "lon"],
+      "properties": {
+        "city": { "type": "string" },
+        "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "lon": { "type": "number", "minimum": -180, "maximum": 180 }
+      },
+      "additionalProperties": false
+    },
+    "family": {
+      "type": "object",
+      "required": ["adults", "child_ages"],
+      "properties": {
+        "adults": { "type": "integer", "minimum": 1 },
+        "child_ages": { "type": "array", "items": { "type": "integer", "minimum": 0 } }
+      },
+      "additionalProperties": false
+    },
+    "resorts": {
+      "type": "object",
+      "required": ["min_items", "target_items", "countries", "batch_size"],
+      "properties": {
+        "min_items": { "type": "integer", "minimum": 1 },
+        "target_items": { "type": "integer", "minimum": 1 },
+        "countries": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z]{2}$" } },
+        "batch_size": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "gastro": {
+      "type": "object",
+      "required": ["min_items", "target_items", "search_regions", "batch_size"],
+      "properties": {
+        "min_items": { "type": "integer", "minimum": 1 },
+        "target_items": { "type": "integer", "minimum": 1 },
+        "search_regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["country", "region"],
+            "properties": {
+              "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+              "region": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "batch_size": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "matching": {
+      "type": "object",
+      "required": ["radius_km", "ambiguity_km", "min_restaurants"],
+      "properties": {
+        "radius_km": {
+          "type": "object",
+          "required": ["small", "medium", "large"],
+          "properties": {
+            "small": { "type": "number", "minimum": 0 },
+            "medium": { "type": "number", "minimum": 0 },
+            "large": { "type": "number", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "ambiguity_km": { "type": "number", "minimum": 0 },
+        "min_restaurants": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "costs": {
+      "type": "object",
+      "required": ["cost_per_km", "chf_to_eur", "default_variant", "max_drive_time_min"],
+      "properties": {
+        "cost_per_km": { "type": "number", "minimum": 0 },
+        "chf_to_eur": { "type": "number", "minimum": 0 },
+        "default_variant": { "type": "string", "enum": ["v1", "v2", "v3"] },
+        "max_drive_time_min": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "quality": {
+      "type": "object",
+      "required": ["weights"],
+      "properties": {
+        "weights": {
+          "type": "object",
+          "required": ["snow_reliability", "family_friendliness", "size_norm"],
+          "properties": {
+            "snow_reliability": { "type": "number", "minimum": 0, "maximum": 1 },
+            "family_friendliness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "size_norm": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "clustering": {
+      "type": "object",
+      "required": ["k_min", "k_max", "random_state", "features"],
+      "properties": {
+        "k_min": { "type": "integer", "minimum": 2 },
+        "k_max": { "type": "integer", "minimum": 2 },
+        "random_state": { "type": "integer" },
+        "features": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "llm": {
+      "type": "object",
+      "required": ["provider", "temperature_factual", "temperature_subjective", "max_retries", "runs", "models"],
+      "properties": {
+        "provider": { "type": "string", "enum": ["auto", "anthropic", "openai", "mock"] },
+        "temperature_factual": { "type": "number", "minimum": 0, "maximum": 2 },
+        "temperature_subjective": { "type": "number", "minimum": 0, "maximum": 2 },
+        "max_retries": { "type": "integer", "minimum": 0 },
+        "runs": { "type": "integer", "minimum": 1 },
+        "models": {
+          "type": "object",
+          "required": ["anthropic", "openai"],
+          "properties": {
+            "anthropic": { "type": "string" },
+            "openai": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "acceptance": {
+      "type": "object",
+      "required": [
+        "fact_check_tolerance", "min_spearman", "min_age_category_accuracy",
+        "min_match_coverage", "min_match_hit_rate", "top_n_sensitivity", "price_sensitivity_pct"
+      ],
+      "properties": {
+        "fact_check_tolerance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "min_spearman": { "type": "number", "minimum": -1, "maximum": 1 },
+        "min_age_category_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "min_match_coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "min_match_hit_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "top_n_sensitivity": { "type": "integer", "minimum": 1 },
+        "price_sensitivity_pct": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "include_lunch_cost": { "type": "boolean" },
+    "data_dir": { "type": "string" },
+    "log_dir": { "type": "string" },
+    "report_dir": { "type": "string" }
+  },
+  "additionalProperties": false
+}

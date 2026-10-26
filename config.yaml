@@ -1,0 +1,93 @@
+schema_version: "1.0.0"
+
+origin:
+  city: "Singen (Hohentwiel)"
+  lat: 47.7596
+  lon: 8.8404
+
+family:
+  adults: 2
+  child_ages: [16, 13]
+
+resorts:
+  min_items: 100
+  target_items: 120
+  countries: ["CH", "AT", "DE", "IT", "FR"]
+  batch_size: 10
+
+gastro:
+  min_items: 200
+  target_items: 300
+  search_regions:
+    - {country: "CH", region: "Graubünden"}
+    - {country: "CH", region: "Wallis"}
+    - {country: "CH", region: "Berner Oberland"}
+    - {country: "CH", region: "Zentralschweiz"}
+    - {country: "AT", region: "Tirol"}
+    - {country: "AT", region: "Salzburger Land"}
+    - {country: "AT", region: "Vorarlberg"}
+    - {country: "AT", region: "Steiermark"}
+    - {country: "AT", region: "Kärnten"}
+    - {country: "DE", region: "Bayern"}
+    - {country: "IT", region: "Südtirol"}
+    - {country: "IT", region: "Trentino"}
+    - {country: "FR", region: "Savoie"}
+    - {country: "FR", region: "Haute-Savoie"}
+  batch_size: 10
+
+matching:
+  radius_km:
+    small: 5
+    medium: 8
+    large: 15
+  ambiguity_km: 1.0
+  min_restaurants: 1
+
+costs:
+  cost_per_km: 0.30
+  chf_to_eur: 0.95
+  default_variant: "v2"
+  max_drive_time_min: 180
+
+quality:
+  weights:
+    snow_reliability: 0.40
+    family_friendliness: 0.35
+    size_norm: 0.25
+
+clustering:
+  k_min: 3
+  k_max: 8
+  random_state: 42
+  features:
+    - "quality_score"
+    - "family_day_cost_eur"
+    - "slope_km"
+    - "snow_reliability"
+    - "family_friendliness"
+    - "drive_time_min"
+
+llm:
+  provider: "auto"
+  temperature_factual: 0.3
+  temperature_subjective: 0.7
+  max_retries: 3
+  runs: 3
+  models:
+    anthropic: "claude-sonnet-4-20250514"
+    openai: "gpt-4o"
+
+acceptance:
+  fact_check_tolerance: 0.20
+  min_spearman: 0.7
+  min_age_category_accuracy: 0.80
+  min_match_coverage: 0.70
+  min_match_hit_rate: 0.80
+  top_n_sensitivity: 5
+  price_sensitivity_pct: 0.10
+
+include_lunch_cost: false
+
+data_dir: "data"
+log_dir: "logs"
+report_dir: "report"

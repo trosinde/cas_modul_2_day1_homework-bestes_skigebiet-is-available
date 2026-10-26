@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Validation Report (validation_report.json)",
+  "type": "object",
+  "required": ["schema_version", "produced_by", "created_at", "config_sha256", "summary", "checks", "recommendation", "reasoning"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "produced_by": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "config_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "summary": {
+      "type": "object",
+      "required": ["fact_check_accuracy", "spearman_min", "age_category_accuracy", "top5_stable", "fabricated_items"],
+      "properties": {
+        "fact_check_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "spearman_min": { "type": "number", "minimum": -1, "maximum": 1 },
+        "age_category_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "match_coverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "match_hit_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "top5_stable": { "type": "boolean" },
+        "fabricated_items": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "level", "passed", "detail"],
+        "properties": {
+          "check_id": { "type": "string" },
+          "level": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "detail": { "type": "string" },
+          "value": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "recommendation": { "type": "string", "enum": ["go", "conditional_go", "no_go"] },
+    "reasoning": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

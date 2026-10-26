@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLM Response Envelope",
+  "type": "object",
+  "required": ["kind", "template_id", "timestamp", "provider", "model", "temperature", "prompt_tokens", "completion_tokens", "records", "raw_response", "attempts", "error"],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": ["resort_items", "resort_attributes", "gastro_items", "gastro_prices"]
+    },
+    "template_id": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "provider": { "type": "string" },
+    "model": { "type": "string" },
+    "temperature": { "type": "number", "minimum": 0 },
+    "prompt_tokens": { "type": "integer", "minimum": 0 },
+    "completion_tokens": { "type": "integer", "minimum": 0 },
+    "records": { "type": "array", "items": { "type": "object" } },
+    "raw_response": { "type": "string" },
+    "attempts": { "type": "integer", "minimum": 1 },
+    "error": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

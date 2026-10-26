@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cluster Row (clusters.csv)",
+  "type": "object",
+  "x-primary-key": ["resort_id"],
+  "x-column-order": ["resort_id", "cluster_id", "cluster_label", "pc1", "pc2", "silhouette"],
+  "required": ["resort_id", "cluster_id", "cluster_label", "pc1", "pc2", "silhouette"],
+  "properties": {
+    "resort_id": { "type": "string", "pattern": "^[a-z]{2}-.+" },
+    "cluster_id": { "type": "integer", "minimum": 0 },
+    "cluster_label": { "type": "string", "minLength": 1 },
+    "pc1": { "type": "number" },
+    "pc2": { "type": "number" },
+    "silhouette": { "type": "number", "minimum": -1, "maximum": 1 }
+  },
+  "additionalProperties": false
+}

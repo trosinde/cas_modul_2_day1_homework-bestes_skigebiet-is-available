@@ -1,0 +1,12 @@
+{"restaurants": [
+  {
+    "name": "Alphütte Arosa",
+    "country": "CH",
+    "region": "Graubünden",
+    "lat": 46.9000,
+    "lon": 9.3400,
+    "elevation_m": 1950,
+    "restaurant_type": "hut",
+    "ski_area_hint": "Arosa Lenzerheide"
+  }
+]}

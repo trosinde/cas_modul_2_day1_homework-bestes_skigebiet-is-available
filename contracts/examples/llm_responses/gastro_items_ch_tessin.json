@@ -1,0 +1,12 @@
+{"restaurants": [
+  {
+    "name": "Ristorante Bellavista",
+    "country": "CH",
+    "region": "Tessin",
+    "lat": 45.5000,
+    "lon": 8.5000,
+    "elevation_m": 400,
+    "restaurant_type": "restaurant",
+    "ski_area_hint": null
+  }
+]}

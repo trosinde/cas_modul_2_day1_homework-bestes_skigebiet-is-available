@@ -1,0 +1,3 @@
+batch_id,item_id,record_name,reason,detail
+gastro_prices_run1_batch1,ch-ostschweiz-berghaus-prodalp,Berghaus Prodalp,parse_failed,JSON response contained trailing comma after last record
+gastro_items_ch_graubuenden,,"Restaurant am See Zürich",unknown_item,Restaurant not in a ski area; removed from list

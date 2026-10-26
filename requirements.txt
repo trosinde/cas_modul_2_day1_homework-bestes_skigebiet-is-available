@@ -1,0 +1,12 @@
+anthropic>=0.40
+openai
+pandas
+numpy
+plotly
+kaleido
+scikit-learn
+scipy
+pyyaml
+python-dotenv
+jsonschema
+jinja2

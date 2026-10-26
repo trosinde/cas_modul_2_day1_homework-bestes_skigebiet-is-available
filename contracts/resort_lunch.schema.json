@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resort Lunch Row (resort_lunch.csv)",
+  "type": "object",
+  "x-primary-key": ["resort_id"],
+  "x-column-order": [
+    "resort_id", "n_restaurants", "lunch_main_eur", "lunch_drink_eur",
+    "lunch_iqr_eur", "lunch_source"
+  ],
+  "required": ["resort_id", "n_restaurants", "lunch_main_eur", "lunch_drink_eur", "lunch_iqr_eur", "lunch_source"],
+  "properties": {
+    "resort_id": { "type": "string", "pattern": "^[a-z]{2}-.+" },
+    "n_restaurants": { "type": "integer", "minimum": 0 },
+    "lunch_main_eur": { "type": "number", "minimum": 0 },
+    "lunch_drink_eur": { "type": "number", "minimum": 0 },
+    "lunch_iqr_eur": { "type": ["number", "null"], "minimum": 0 },
+    "lunch_source": { "type": "string", "enum": ["matched", "country_median"] }
+  },
+  "additionalProperties": false
+}

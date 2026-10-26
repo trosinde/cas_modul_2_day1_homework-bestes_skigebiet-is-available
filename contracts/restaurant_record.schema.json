@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Restaurant Record (LLM output)",
+  "type": "object",
+  "required": [
+    "name", "country", "region", "lat", "lon", "elevation_m",
+    "restaurant_type", "lunch_main_eur", "lunch_drink_eur",
+    "price_level", "confidence", "reason_price"
+  ],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "region": { "type": "string", "minLength": 1 },
+    "lat": { "type": "number", "minimum": 43, "maximum": 49 },
+    "lon": { "type": "number", "minimum": 4, "maximum": 17 },
+    "elevation_m": { "type": "integer", "minimum": 500, "maximum": 3500 },
+    "restaurant_type": { "type": "string", "enum": ["self_service", "hut", "restaurant"] },
+    "ski_area_hint": { "type": ["string", "null"] },
+    "lunch_main_eur": { "type": "number", "minimum": 10, "maximum": 45 },
+    "lunch_drink_eur": { "type": "number", "minimum": 3, "maximum": 10 },
+    "price_level": { "type": "string", "enum": ["low", "medium", "high"] },
+    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+    "reason_price": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

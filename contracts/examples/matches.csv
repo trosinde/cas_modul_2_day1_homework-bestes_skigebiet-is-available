@@ -1,0 +1,11 @@
+restaurant_id,resort_id,distance_km,second_resort_id,second_distance_km,match_status,hint_agrees
+ch-ostschweiz-berghaus-prodalp,ch-flumserberg,1.81,ch-arosa-lenzerheide,15.03,matched,true
+ch-ostschweiz-panorama-flumserberg,ch-flumserberg,4.55,ch-arosa-lenzerheide,17.79,matched,true
+it-suedtirol-gipfelhuette-kronplatz,it-kronplatz,3.23,de-fellhorn,144.31,matched,true
+it-suedtirol-ristorante-concordia,it-kronplatz,9.13,de-fellhorn,139.76,matched,true
+ch-graubuenden-alphuette-arosa,ch-arosa-lenzerheide,7.05,ch-flumserberg,20.83,matched,true
+de-bayern-kanzelwand-stube,de-fellhorn,2.55,ch-flumserberg,79.65,matched,true
+ch-ostschweiz-alp-tannenboden,ch-flumserberg,6.70,ch-arosa-lenzerheide,7.15,ambiguous,true
+ch-ostschweiz-bergbeizli-seeblick,ch-arosa-lenzerheide,6.46,ch-flumserberg,7.44,ambiguous,true
+de-bayern-gasthaus-alpenblick,,74.36,de-fellhorn,115.26,unmatched,
+ch-tessin-ristorante-bellavista,,173.89,ch-arosa-lenzerheide,186.06,unmatched,

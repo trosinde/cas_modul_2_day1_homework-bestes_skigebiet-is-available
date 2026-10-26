@@ -1,0 +1,31 @@
+restaurant_id,run,name,country,region,lat,lon,elevation_m,restaurant_type,ski_area_hint,lunch_main_eur,lunch_drink_eur,price_level,confidence,reason_price
+ch-ostschweiz-berghaus-prodalp,1,Berghaus Prodalp,CH,Ostschweiz,47.0950,9.3000,1570,restaurant,Flumserberg,22.00,5.00,medium,high,Mittelpreisiges Bergrestaurant mit Schweizer Standardpreisen.
+ch-ostschweiz-berghaus-prodalp,2,Berghaus Prodalp,CH,Ostschweiz,47.0950,9.3000,1570,restaurant,Flumserberg,23.00,5.00,medium,high,Typisches Schweizer Bergrestaurant im mittleren Preissegment.
+ch-ostschweiz-berghaus-prodalp,3,Berghaus Prodalp,CH,Ostschweiz,47.0950,9.3000,1570,restaurant,Flumserberg,22.50,5.00,medium,high,Bergrestaurant auf 1570 m mit moderaten Schweizer Preisen.
+ch-ostschweiz-panorama-flumserberg,1,Panorama Restaurant,CH,Ostschweiz,47.1200,9.3100,1850,self_service,Flumserberg,19.00,4.50,medium,high,Selbstbedienung mit typischen Bergpreisen.
+ch-ostschweiz-panorama-flumserberg,2,Panorama Restaurant,CH,Ostschweiz,47.1200,9.3100,1850,self_service,Flumserberg,18.50,4.50,medium,high,SB-Restaurant auf dem Flumserberg.
+ch-ostschweiz-panorama-flumserberg,3,Panorama Restaurant,CH,Ostschweiz,47.1200,9.3100,1850,self_service,Flumserberg,19.50,4.50,medium,high,Günstiges Selbstbedienungsrestaurant.
+it-suedtirol-gipfelhuette-kronplatz,1,Gipfelhütte Kronplatz,IT,Südtirol,46.7600,11.9300,2200,hut,Kronplatz,18.00,4.00,medium,high,Typische Südtiroler Hütte.
+it-suedtirol-gipfelhuette-kronplatz,2,Gipfelhütte Kronplatz,IT,Südtirol,46.7600,11.9300,2200,hut,Kronplatz,17.50,3.50,medium,high,Hütte auf dem Kronplatz mit fairen Preisen.
+it-suedtirol-gipfelhuette-kronplatz,3,Gipfelhütte Kronplatz,IT,Südtirol,46.7600,11.9300,2200,hut,Kronplatz,18.50,4.50,medium,high,Berghütte mit Südtiroler Küche.
+it-suedtirol-ristorante-concordia,1,Ristorante Concordia,IT,Südtirol,46.8100,11.9000,1600,restaurant,Kronplatz,24.00,4.50,high,medium,Gehobenes Restaurant im Kronplatz-Gebiet.
+it-suedtirol-ristorante-concordia,2,Ristorante Concordia,IT,Südtirol,46.8100,11.9000,1600,restaurant,Kronplatz,23.00,4.50,high,medium,Restaurant mit gehobener Küche.
+it-suedtirol-ristorante-concordia,3,Ristorante Concordia,IT,Südtirol,46.8100,11.9000,1600,restaurant,Kronplatz,25.00,5.00,high,medium,Höherpreisiges Restaurant in Südtirol.
+ch-graubuenden-alphuette-arosa,1,Alphütte Arosa,CH,Graubünden,46.9000,9.3400,1950,hut,Arosa Lenzerheide,25.00,5.50,high,high,Traditionelle Alphütte mit gehobenen Preisen.
+ch-graubuenden-alphuette-arosa,2,Alphütte Arosa,CH,Graubünden,46.9000,9.3400,1950,hut,Arosa Lenzerheide,24.50,5.50,high,high,Schweizer Berghütte im gehobenen Segment.
+ch-graubuenden-alphuette-arosa,3,Alphütte Arosa,CH,Graubünden,46.9000,9.3400,1950,hut,Arosa Lenzerheide,25.50,5.50,high,high,Hütte mit typischen Bündner Preisen.
+de-bayern-kanzelwand-stube,1,Kanzelwand Stube,DE,Bayern,47.3700,10.2500,1520,self_service,Fellhorn/Kanzelwand,15.00,3.50,low,high,Günstige Selbstbedienung im Allgäu.
+de-bayern-kanzelwand-stube,2,Kanzelwand Stube,DE,Bayern,47.3700,10.2500,1520,self_service,Fellhorn/Kanzelwand,14.50,3.50,low,high,Preiswerte SB-Gastronomie.
+de-bayern-kanzelwand-stube,3,Kanzelwand Stube,DE,Bayern,47.3700,10.2500,1520,self_service,Fellhorn/Kanzelwand,15.50,3.50,low,high,Allgäuer Bergrestaurant mit fairen Preisen.
+ch-ostschweiz-alp-tannenboden,1,Alp Tannenboden,CH,Ostschweiz,47.0237,9.2967,1400,hut,Flumserberg,21.00,5.00,medium,medium,Berghütte zwischen Flumserberg und Arosa.
+ch-ostschweiz-alp-tannenboden,2,Alp Tannenboden,CH,Ostschweiz,47.0237,9.2967,1400,hut,Flumserberg,20.50,5.00,medium,medium,Gemütliche Hütte mit mittleren Preisen.
+ch-ostschweiz-alp-tannenboden,3,Alp Tannenboden,CH,Ostschweiz,47.0237,9.2967,1400,hut,Flumserberg,21.50,5.00,medium,medium,Traditionelle Alphütte.
+ch-ostschweiz-bergbeizli-seeblick,1,Bergbeizli Seeblick,CH,Ostschweiz,47.0180,9.3050,1350,restaurant,Arosa Lenzerheide,23.00,5.00,medium,medium,Restaurant mit durchschnittlichen Preisen.
+ch-ostschweiz-bergbeizli-seeblick,2,Bergbeizli Seeblick,CH,Ostschweiz,47.0180,9.3050,1350,restaurant,Arosa Lenzerheide,22.50,4.50,medium,medium,Bergbeizli mit Schweizer Preisen.
+ch-ostschweiz-bergbeizli-seeblick,3,Bergbeizli Seeblick,CH,Ostschweiz,47.0180,9.3050,1350,restaurant,Arosa Lenzerheide,23.50,5.50,medium,medium,Restaurant mit Seeblick und typischen Preisen.
+de-bayern-gasthaus-alpenblick,1,Gasthaus Alpenblick,DE,Bayern,48.0000,10.0000,650,restaurant,,16.00,3.50,low,high,Gasthaus im Voralpenland.
+de-bayern-gasthaus-alpenblick,2,Gasthaus Alpenblick,DE,Bayern,48.0000,10.0000,650,restaurant,,15.50,3.50,low,high,Preisgünstiges Gasthaus.
+de-bayern-gasthaus-alpenblick,3,Gasthaus Alpenblick,DE,Bayern,48.0000,10.0000,650,restaurant,,16.50,3.50,low,high,Bayerisches Gasthaus mit fairen Preisen.
+ch-tessin-ristorante-bellavista,1,Ristorante Bellavista,CH,Tessin,45.5000,8.5000,400,restaurant,,20.00,4.50,medium,medium,Restaurant im Tessin.
+ch-tessin-ristorante-bellavista,2,Ristorante Bellavista,CH,Tessin,45.5000,8.5000,400,restaurant,,19.50,4.00,medium,medium,Tessiner Restaurant mit mittleren Preisen.
+ch-tessin-ristorante-bellavista,3,Ristorante Bellavista,CH,Tessin,45.5000,8.5000,400,restaurant,,20.50,5.00,medium,medium,Restaurant mit Tessiner Küche.
