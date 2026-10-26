@@ -6,7 +6,7 @@
 <title>{{ title }}</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly-basic.min.js" crossorigin="anonymous" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js" crossorigin="anonymous" async></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f4f6f9;color:#1a1a2e}
@@ -33,7 +33,11 @@ header .subtitle{font-size:.85rem;opacity:.7}
 .chart-info .chart-tooltip b{color:#a5b4fc}
 .chart-info:hover .chart-tooltip{display:block}
 table.top10{width:100%;border-collapse:collapse;font-size:.85rem}
-table.top10 th{background:#e0e7ff;padding:.5rem .6rem;text-align:left;font-weight:600;position:sticky;top:0}
+table.top10 th{background:#e0e7ff;padding:.5rem .6rem;text-align:left;font-weight:600;position:sticky;top:0;position:relative}
+.th-info{display:inline-block;width:15px;height:15px;border-radius:50%;background:#c7d2fe;color:#4338ca;font-size:.65rem;font-weight:700;text-align:center;line-height:15px;margin-left:4px;cursor:help;vertical-align:middle;position:relative}
+.th-info .th-tip{display:none;position:absolute;top:22px;left:50%;transform:translateX(-50%);width:300px;background:#1a1a2e;color:#e2e8f0;font-size:.76rem;font-weight:400;line-height:1.5;padding:.6rem .7rem;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.3);white-space:normal;z-index:20;text-align:left}
+.th-info .th-tip b{color:#a5b4fc}
+.th-info:hover .th-tip{display:block}
 table.top10 td{padding:.45rem .6rem;border-bottom:1px solid #f0f0f0}
 table.top10 tr:hover{background:#f8fafc}
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-weight:700;font-size:.8rem;color:#fff}
@@ -101,7 +105,7 @@ table.top10 tr:hover{background:#f8fafc}
     </div>
     <div style="overflow-x:auto">
     <table class="top10">
-      <thead><tr><th>#</th><th>Skigebiet</th><th>Land</th><th>Pisten</th><th>Fahrzeit</th><th>Kosten</th><th>Aufschlüsselung</th><th>Qualität</th><th>Index</th></tr></thead>
+      <thead><tr><th>#</th><th>Skigebiet</th><th>Land</th><th>Pisten<span class="th-info">ⓘ<span class="th-tip"><b>Pistenkilometer:</b> Gesamtlänge aller Abfahrten des Skigebiets in km. Vom LLM geschätzt und über 3 Durchläufe gemittelt.</span></span></th><th>Fahrzeit<span class="th-info">ⓘ<span class="th-tip"><b>Fahrzeit:</b> Einfache Fahrtzeit in Minuten von Singen (Hohentwiel) zum Skigebiet. Vom LLM geschätzt. Nur Gebiete mit ≤ 180 min erscheinen im Ranking.</span></span></th><th>Kosten<span class="th-info">ⓘ<span class="th-tip"><b>Familientageskosten (EUR):</b> Gesamtkosten für einen Tagesausflug mit 2 Erwachsenen + 2 Kindern (16 &amp; 13 J.).<br><b>Formel:</b> Skipässe + Fahrtkosten (+ Mittagessen falls aktiv).<br>• <b>Skipässe</b> = min(2 × Erw. + Jugend + Kind, Familienpass)<br>• <b>Fahrtkosten</b> = 2 × Distanz (km) × 0.30 €/km (Hin- und Rückfahrt)<br>• <b>Mittagessen</b> = 4 × (Hauptgericht + Getränk), falls aktiviert<br><b>Variante:</b> Die aktive Kostenvariante kann links im Filter geändert werden (v1 = nur Pässe, v2 = Pässe + Fahrt, v3 = alles).</span></span></th><th>Aufschlüsselung<span class="th-info">ⓘ<span class="th-tip"><b>Kostenaufschlüsselung:</b> Visueller Balken der Kostenanteile.<br>• <b>Violett</b> = Skipässe<br>• <b>Cyan</b> = Fahrtkosten<br>• <b>Orange</b> = Mittagessen (falls aktiv)<br>Die Breite jedes Segments ist proportional zum jeweiligen Kostenanteil.</span></span></th><th>Qualität<span class="th-info">ⓘ<span class="th-tip"><b>Qualitätsscore (0–10):</b> Gewichtete Summe aus drei Faktoren:<br>• 40% Schneesicherheit (1–10, LLM)<br>• 35% Familienfreundlichkeit (1–10, LLM)<br>• 25% Grössenfaktor (log-skalierte Pisten-km, normiert auf 0–10)<br><b>Formel:</b> Q = 0.40 × Schnee + 0.35 × Familie + 0.25 × (ln(Pisten-km) ÷ ln(max)) × 10<br>Alle LLM-Scores sind Mittelwerte aus 3 unabhängigen Durchläufen.</span></span></th><th>Index<span class="th-info">ⓘ<span class="th-tip"><b>Value Index (Preis-Leistungs-Index):</b> Höher = besseres Verhältnis von Qualität zu Kosten.<br><b>Formel:</b> Value Index = Qualitätsscore ÷ (Tageskosten ÷ 100)<br><b>Beispiel:</b> Qualität 6.7 bei 180 EUR → 6.7 ÷ 1.80 = 3.72<br>Das Ranking sortiert nach diesem Index (absteigend). Ein Index &gt; 3 bedeutet sehr gute Preis-Leistung.</span></span></th></tr></thead>
       <tbody id="top10Body"></tbody>
     </table>
     </div>
@@ -116,7 +120,7 @@ table.top10 tr:hover{background:#f8fafc}
       <div class="chart-card" id="chartCountryBox"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Y-Achse:</b> Familientageskosten (EUR) pro Land.<br><b>Aufbau Boxplot:</b><br>• Linie in der Box = Median<br>• Boxgrenzen = 25. und 75. Perzentil (Q1–Q3)<br>• Whisker = bis 1.5 × IQR vom Quartil<br>• Einzelne Punkte = Ausreisser<br><b>Kosten enthalten:</b> Skipässe + Fahrtkosten (+ Mittagessen falls aktiv).<br><b>Hinweis:</b> Zeigt nur Gebiete innerhalb des aktiven Fahrzeit-Filters. Entfernte Länder haben weniger Datenpunkte, weil weniger Gebiete in Reichweite liegen.</span></span></div>
       <div class="chart-card" id="chartPCA"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Methode:</b> k-Means-Clustering auf 4 Merkmalen: Qualitätsscore, Familientageskosten, Pistenkilometer, Schneesicherheit. Optimale Clusterzahl automatisch per Silhouette-Score bestimmt (k = 3–8).<br><b>Achsen:</b> PC1 und PC2 sind die ersten zwei Hauptkomponenten (PCA) — sie fassen die 4 Merkmale in 2 Dimensionen zusammen. Nähe = Ähnlichkeit im Merkmalsprofil.<br><b>Farbe:</b> Cluster-Zugehörigkeit. Labels beschreiben das statistische Profil jedes Clusters (z.B. «nah &amp; günstig», «Grosse Premium-Gebiete»).<br><b>Hinweis:</b> Umfasst alle Skigebiete, nicht nur die im Ranking.</span></span></div>
       <div class="chart-card" id="chartScoreHist"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>X-Achse:</b> Score-Wert (Skala 1–10, ganzzahlig).<br><b>Y-Achse:</b> Anzahl Skigebiete mit diesem Score.<br><b>Drei Verteilungen (überlagert):</b><br>• Schnee (blau) = Schneesicherheit — wie zuverlässig ist die Schneelage?<br>• Familie (grün) = Familienfreundlichkeit — Kinderangebote, Übungsgelände, Erreichbarkeit<br>• Preis-Leistung (gelb) = subjektives Preis-Leistungs-Verhältnis<br><b>Quelle:</b> Alle drei Scores wurden vom LLM in 3 unabhängigen Durchläufen vergeben und gemittelt. Schmalere Verteilung = grössere Einigkeit zwischen den Durchläufen.</span></span></div>
-      <div class="chart-card" id="chartCorr"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Was zeigt die Matrix:</b> Pearson-Korrelation (r) zwischen je zwei Kennzahlen. Wertebereich −1 bis +1.<br>• <b>Blau (r → +1):</b> Steigt A, steigt auch B<br>• <b>Rot (r → −1):</b> Steigt A, sinkt B<br>• <b>Weiss (r ≈ 0):</b> Kein linearer Zusammenhang<br><b>Enthaltene Merkmale:</b> Pisten-km, Schneesicherheit, Familienfreundlichkeit, Tagespass Erwachsene (EUR), Fahrzeit (min), Qualitätsscore.<br><b>Beispiel lesen:</b> Zelle Pisten-km / Tagesk. Erw. zeigt, ob grössere Gebiete tendenziell teurer sind.</span></span></div>
+      <div class="chart-card" id="chartCorr"><span class="chart-info">ⓘ<span class="chart-tooltip"><b>Was ist das?</b> Eine Heatmap der Pearson-Korrelation (r) zwischen je zwei Kennzahlen. Jede Zelle zeigt, wie stark zwei Grössen linear zusammenhängen.<br><br><b>Wie lese ich die Farben?</b><br>• <b>Dunkelblau (r nahe 1):</b> Starker positiver Zusammenhang — steigt A, steigt auch B.<br>• <b>Hellblau (r mittel):</b> Moderater Zusammenhang.<br>• <b>Grau/Hell (r nahe 0):</b> Kein linearer Zusammenhang.<br>Die Farbskala rechts zeigt den genauen Bereich der r-Werte in den Daten.<br><br><b>Wie lese ich eine Zelle?</b> Zeile × Spalte ergibt das Kennzahlenpaar. Die Zahl in der Zelle ist der r-Wert. Die Diagonale ist immer 1.00 (jede Grösse korreliert perfekt mit sich selbst).<br><br><b>Warum nur positive Werte?</b> In diesem Datensatz korrelieren alle Merkmale positiv — grössere Gebiete haben tendenziell höhere Preise, besseren Schnee und höhere Qualitätsscores.<br><br><b>Enthaltene Merkmale:</b> Pisten-km, Schneesicherheit (LLM 1–10), Familienfreundlichkeit (LLM 1–10), Tagespass Erwachsene (EUR), Fahrzeit ab Singen (min), Qualitätsscore (gewichtete Summe).<br><br><b>Beispiel:</b> Zelle «Pisten-km / Tagesk. Erw.» mit r = 0.87 bedeutet: Grössere Skigebiete haben deutlich höhere Tagespasspreise — ein starker positiver Zusammenhang.</span></span></div>
     </div>
   </div>
 
@@ -393,20 +397,37 @@ function buildCharts() {
   // 6 Correlation heatmap
   const corrCols = ['slope_km', 'snow_reliability', 'family_friendliness', 'day_pass_adult_eur', 'drive_time_min', 'quality_score'];
   const corrLabels = ['Pisten-km', 'Schnee', 'Familie', 'Tagesk. Erw.', 'Fahrzeit', 'Qualität'];
-  const matrix = corrCols.map(c1 => corrCols.map(c2 => {
-    const v1 = f.map(r => r[c1]).filter(v => v != null);
-    const v2 = f.map(r => r[c2]).filter(v => v != null);
-    const n = Math.min(v1.length, v2.length);
+  function pearson(data, c1, c2) {
+    const pairs = data.filter(r => r[c1] != null && r[c2] != null);
+    const n = pairs.length;
     if (n < 3) return 0;
-    const m1 = v1.slice(0, n).reduce((a, b) => a + b, 0) / n;
-    const m2 = v2.slice(0, n).reduce((a, b) => a + b, 0) / n;
-    const s1 = Math.sqrt(v1.slice(0, n).reduce((a, b) => a + (b - m1) ** 2, 0) / n) || 1;
-    const s2 = Math.sqrt(v2.slice(0, n).reduce((a, b) => a + (b - m2) ** 2, 0) / n) || 1;
-    return v1.slice(0, n).reduce((a, b, i) => a + (b - m1) * (v2[i] - m2), 0) / n / s1 / s2;
-  }));
+    const m1 = pairs.reduce((a, r) => a + r[c1], 0) / n;
+    const m2 = pairs.reduce((a, r) => a + r[c2], 0) / n;
+    const s1 = Math.sqrt(pairs.reduce((a, r) => a + (r[c1] - m1) ** 2, 0) / n) || 1;
+    const s2 = Math.sqrt(pairs.reduce((a, r) => a + (r[c2] - m2) ** 2, 0) / n) || 1;
+    return pairs.reduce((a, r) => a + (r[c1] - m1) * (r[c2] - m2), 0) / n / s1 / s2;
+  }
+  const matrix = corrCols.map(c1 => corrCols.map(c2 => Math.round(pearson(f, c1, c2) * 100) / 100));
+  const annotations = [];
+  for (let i = 0; i < corrCols.length; i++) {
+    for (let j = 0; j < corrCols.length; j++) {
+      annotations.push({ x: corrLabels[j], y: corrLabels[i], text: matrix[i][j].toFixed(2),
+        showarrow: false, font: { size: 11, color: Math.abs(matrix[i][j]) > 0.5 ? '#fff' : '#1a1a2e' } });
+    }
+  }
+  const flatVals = matrix.flat().filter((v, i) => i % (corrCols.length + 1) !== 0);
+  const rMin = Math.min(...flatVals);
+  const rMax = Math.max(...flatVals);
+  const zLo = Math.floor(rMin * 10) / 10;
+  const zHi = Math.ceil(rMax * 10) / 10;
   Plotly.newPlot('chartCorr', [{ z: matrix, x: corrLabels, y: corrLabels, type: 'heatmap',
-    colorscale: [[0, '#dc2626'], [.5, '#fff'], [1, '#2563eb']], zmin: -1, zmax: 1 }],
-    { ...plotLayout, title: 'Korrelationsmatrix', margin: { ...plotLayout.margin, l: 100, b: 100 } }, plotCfg);
+    colorscale: [[0, '#f5f5f5'], [0.5, '#60a5fa'], [1, '#1e40af']],
+    zmin: zLo, zmax: zHi, showscale: true,
+    colorbar: { title: 'r', titleside: 'right', thickness: 15, len: 0.9 },
+    hovertemplate: '%{y} × %{x}: r = %{z:.2f}<extra></extra>' }],
+    { ...plotLayout, title: 'Korrelations-Heatmap', margin: { t: 40, r: 80, b: 100, l: 100 },
+      xaxis: { side: 'bottom' }, yaxis: { autorange: 'reversed' },
+      annotations: annotations }, plotCfg);
 }
 
 // --- DATA QUALITY ---
