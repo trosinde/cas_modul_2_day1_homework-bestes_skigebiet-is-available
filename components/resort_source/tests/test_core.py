@@ -80,6 +80,59 @@ def test_size_class():
     assert _size_class(100) == "medium"
 
 
+def test_price_regression_varies_by_slope():
+    """Regression should produce different prices for different slope sizes."""
+    import math
+    import statistics
+    from components.resort_source.scraper import _fit_price_regression
+
+    resorts = [
+        {"resort_id": f"ch-r{i}", "country": "CH", "slope_km": slope}
+        for i, slope in enumerate([1, 2, 5, 10, 20, 50, 100])
+    ]
+    by_id = {}
+    for i, price in enumerate([20, 25, 30, 35, 45, 65, 90]):
+        by_id[f"ch-r{i}"] = {
+            "resort_id": f"ch-r{i}",
+            "slope_km": resorts[i]["slope_km"],
+            "status": "scraped",
+            "day_pass_adult_eur": price,
+            "day_pass_youth16_eur": price * 0.8,
+            "day_pass_child13_eur": price * 0.6,
+        }
+
+    models = _fit_price_regression(resorts, by_id, min_points=5)
+    assert "CH" in models
+    a, b, ratios = models["CH"]
+    assert a > 0, "Larger resorts should cost more"
+
+    small_price = a * math.log(2) + b
+    large_price = a * math.log(80) + b
+    assert large_price > small_price, "80km resort should cost more than 2km resort"
+    assert "day_pass_youth16_eur" in ratios
+
+
+def test_price_regression_fallback_few_points():
+    """With <5 data points, regression should not be fitted for that country."""
+    from components.resort_source.scraper import _fit_price_regression
+
+    resorts = [
+        {"resort_id": f"fr-r{i}", "country": "FR", "slope_km": slope}
+        for i, slope in enumerate([5, 10, 20])
+    ]
+    by_id = {}
+    for i, price in enumerate([20, 30, 40]):
+        by_id[f"fr-r{i}"] = {
+            "resort_id": f"fr-r{i}",
+            "slope_km": resorts[i]["slope_km"],
+            "status": "scraped",
+            "day_pass_adult_eur": price,
+        }
+
+    models = _fit_price_regression(resorts, by_id, min_points=5)
+    assert "FR" not in models, "Should not fit regression with only 3 points"
+
+
 def test_full_pipeline_mock(mock_cfg):
     """Full C1 pipeline should complete with mock data."""
     from components.resort_source.core import run

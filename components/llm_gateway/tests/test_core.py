@@ -45,6 +45,7 @@ class TestDetectProvider:
     def test_auto_no_keys(self, monkeypatch):
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        monkeypatch.setattr("components.llm_gateway.core.load_dotenv", lambda: None)
         cfg = {"llm": {"provider": "auto", "models": {}}}
         with pytest.raises(SystemExit) as exc_info:
             _detect_provider(cfg)

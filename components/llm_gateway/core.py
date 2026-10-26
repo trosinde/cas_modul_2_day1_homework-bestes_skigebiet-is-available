@@ -11,7 +11,9 @@ from pathlib import Path
 import jsonschema
 
 try:
-    from dotenv import load_dotenv
+    from dotenv import load_dotenv as _load_dotenv
+    def load_dotenv():
+        _load_dotenv(override=True)
 except ImportError:
     def load_dotenv():
         """Fallback: load .env manually if python-dotenv is not installed."""
@@ -21,7 +23,7 @@ except ImportError:
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     k, _, v = line.partition("=")
-                    os.environ.setdefault(k.strip(), v.strip())
+                    os.environ[k.strip()] = v.strip()
 
 
 @dataclass
@@ -97,23 +99,29 @@ def _call_anthropic(system_prompt: str, user_prompt: str, model: str, temperatur
         client = anthropic.Anthropic()
         response = client.messages.create(
             model=model,
-            max_tokens=4096,
+            max_tokens=16384,
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
         )
-        text = response.content[0].text
+        text = next(b.text for b in response.content if hasattr(b, "text"))
         return text, response.usage.input_tokens, response.usage.output_tokens
     except ImportError:
         pass
     import httpx
     api_key = os.environ["ANTHROPIC_API_KEY"]
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+    }
+    custom = os.environ.get("ANTHROPIC_CUSTOM_HEADERS", "")
+    for line in custom.split("\n"):
+        if ":" in line:
+            k, v = line.split(":", 1)
+            headers[k.strip()] = v.strip()
     resp = httpx.post(
         "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
+        headers=headers,
         json={
             "model": model,
             "max_tokens": 4096,

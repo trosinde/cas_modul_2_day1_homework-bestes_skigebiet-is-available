@@ -172,14 +172,15 @@ const countries = [...new Set(resorts.map(r => r.country))].sort();
 const sel = document.getElementById('filterCountry');
 countries.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
 
-// Disable v3 option when no lunch data; auto-select v3 when lunch is active
+// Disable v3 option when no lunch data; set default variant from config
 const variantSel = document.getElementById('filterVariant');
 const v3Option = variantSel.querySelector('option[value="v3"]');
 if (!hasLunchData) {
   v3Option.disabled = true;
   v3Option.textContent += ' (keine Daten)';
-} else if (CONFIG.include_lunch) {
-  variantSel.value = 'v3';
+}
+if (CONFIG.default_variant) {
+  variantSel.value = CONFIG.default_variant;
 }
 
 // --- Filter logic ---
@@ -374,11 +375,17 @@ function buildCharts() {
     height: 432, margin: { ...plotLayout.margin, b: 120 },
     xaxis: { tickangle: -45, automargin: true }, yaxis: { title: 'EUR' } }, plotCfg);
 
-  // 3 Box per country
+  // 3 Box per country (with data quality annotations)
   const t3 = countries.map(c => ({
     y: f.filter(r => r.country === c).map(r => r._cost), type: 'box', name: c, marker: { color: colors[c] || '#64748b' }
   }));
-  Plotly.newPlot('chartCountryBox', t3, { ...plotLayout, title: 'Tageskosten je Land', yaxis: { title: 'EUR' }, showlegend: true }, plotCfg);
+  const estAnnotations = countries.map((c, i) => {
+    const cr = f.filter(r => r.country === c);
+    const nEst = cr.filter(r => r.source_prices && r.source_prices.startsWith('estimated')).length;
+    const pct = cr.length > 0 ? Math.round(100 * nEst / cr.length) : 0;
+    return pct > 50 ? { x: c, y: 0, xref: 'x', yref: 'paper', text: `⚠ ${pct}% geschätzt`, showarrow: false, font: { size: 11, color: '#b45309' }, yanchor: 'top', yshift: -4 } : null;
+  }).filter(Boolean);
+  Plotly.newPlot('chartCountryBox', t3, { ...plotLayout, title: 'Tageskosten je Land', yaxis: { title: 'EUR' }, showlegend: true, annotations: estAnnotations }, plotCfg);
 
   // 4 PCA clusters
   if (clusters.length > 0) {

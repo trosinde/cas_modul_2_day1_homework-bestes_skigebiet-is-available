@@ -50,6 +50,7 @@ def prepare_data(cfg: dict) -> dict:
         "radius_km": cfg.get("matching", {}).get("radius_km", {}),
         "max_drive_time_min": cfg["costs"]["max_drive_time_min"],
         "include_lunch": cfg.get("include_lunch_cost", False),
+        "default_variant": cfg["costs"].get("default_variant", "v2"),
     }
 
     return data
@@ -103,6 +104,7 @@ def export_figures(data: dict, figures_dir: Path, cfg: dict) -> pd.DataFrame:
 
     if len(resorts) > 0:
         ranked = resorts[resorts.get("in_ranking", pd.Series(dtype=bool)) == True] if "in_ranking" in resorts.columns else resorts
+        ranked = ranked.dropna(subset=["family_day_cost_eur", "quality_score", "slope_km"])
         fig = px.scatter(
             ranked,
             x="family_day_cost_eur", y="quality_score",

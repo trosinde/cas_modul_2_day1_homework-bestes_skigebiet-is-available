@@ -82,7 +82,7 @@
     "reason_snow": { "type": ["string", "null"] },
     "reason_family": { "type": ["string", "null"] },
     "reason_value": { "type": ["string", "null"] },
-    "n_runs_valid": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "n_runs_valid": { "type": "integer", "minimum": 0, "maximum": 10 },
     "source_coords": { "type": ["string", "null"] },
     "source_driving": { "type": ["string", "null"] },
     "source_prices": { "type": ["string", "null"] },

@@ -21,6 +21,11 @@ The system SHALL generate an HTML dashboard with interactive map, table, and cha
 - **WHEN** generating the dashboard
 - **THEN** also export PNG figures to `report/figures/` with naming pattern `fig_{component}_{description}.png`
 
+#### Scenario: Data quality annotation on country boxplot
+- **WHEN** rendering the "Tageskosten je Land" boxplot
+- **AND** a country has more than 50% of its resorts with estimated prices (source_prices starting with "estimated")
+- **THEN** display a warning annotation "⚠ X% geschätzt" below that country's box
+
 ### Requirement: Figures Index
 The system SHALL write `report/figures/figures_index.csv` conforming to `contracts/figures_index.schema.json`.
 

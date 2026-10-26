@@ -331,12 +331,82 @@ def _size_class(slope_km: float | None) -> str:
     return "large"
 
 
+def _fit_price_regression(
+    resorts: list[dict],
+    by_id: dict[str, dict],
+    min_points: int = 5,
+) -> dict[str, tuple]:
+    """Fit log-linear regression: adult_price = a * log(slope_km) + b, per country.
+
+    Also computes median ratios (youth/adult, child/adult, family/adult) per country.
+    Returns {country: (a, b, ratios)} for countries with enough data.
+    """
+    import math
+
+    country_data: dict[str, list[dict]] = {}
+    for r in resorts:
+        sr = by_id.get(r["resort_id"], {})
+        slope = sr.get("slope_km") or r.get("slope_km")
+        if (
+            sr.get("status") == "scraped"
+            and sr.get("day_pass_adult_eur") is not None
+            and slope
+            and slope > 0
+        ):
+            country_data.setdefault(r["country"], []).append({
+                "log_slope": math.log(max(slope, 0.5)),
+                "adult": sr["day_pass_adult_eur"],
+                "youth": sr.get("day_pass_youth16_eur"),
+                "child": sr.get("day_pass_child13_eur"),
+                "family": sr.get("family_pass_eur"),
+            })
+
+    models: dict[str, tuple] = {}
+    for country, pts in country_data.items():
+        if len(pts) < min_points:
+            continue
+        xs = [p["log_slope"] for p in pts]
+        ys = [p["adult"] for p in pts]
+        n = len(xs)
+        sx = sum(xs)
+        sy = sum(ys)
+        sxy = sum(x * y for x, y in zip(xs, ys))
+        sxx = sum(x * x for x in xs)
+        denom = n * sxx - sx * sx
+        if abs(denom) < 1e-9:
+            continue
+        a = (n * sxy - sx * sy) / denom
+        b = (sy - a * sx) / n
+
+        ratios: dict[str, float] = {}
+        for field, key in [("day_pass_youth16_eur", "youth"),
+                           ("day_pass_child13_eur", "child"),
+                           ("family_pass_eur", "family")]:
+            pairs = [(p["adult"], p[key]) for p in pts
+                     if p.get(key) is not None and p["adult"] > 0]
+            if pairs:
+                ratios[field] = statistics.median(v / a for a, v in pairs)
+        models[country] = (a, b, ratios)
+        logger.info(
+            "Price regression %s: price = %.1f * log(slope) + %.1f  (n=%d, R²=%.2f)",
+            country, a, b, n,
+            1 - sum((y - (a * x + b)) ** 2 for x, y in zip(xs, ys))
+            / max(sum((y - sy / n) ** 2 for y in ys), 1e-9),
+        )
+    return models
+
+
 def impute_missing_prices(
     resorts: list[dict],
     scrape_results: list[dict],
     report_df: pd.DataFrame,
 ) -> tuple[list[dict], pd.DataFrame]:
-    """Fill missing prices with median from same country + size_class peers."""
+    """Fill missing prices using log-linear regression on slope_km per country.
+
+    Falls back to country+size_class peer median when regression unavailable.
+    """
+    import math
+
     by_id = {r["resort_id"]: r for r in scrape_results}
 
     for r in resorts:
@@ -345,6 +415,10 @@ def impute_missing_prices(
         slope = sr.get("slope_km") or r.get("slope_km")
         r["_size_class"] = _size_class(slope)
 
+    # --- Regression models per country ---
+    models = _fit_price_regression(resorts, by_id)
+
+    # --- Fallback: country+size_class medians (original method) ---
     scraped_prices: dict[str, list[dict]] = {}
     for r in resorts:
         rid = r["resort_id"]
@@ -367,28 +441,52 @@ def impute_missing_prices(
         medians[key] = m
 
     updated_report = report_df.copy()
+    n_regression = 0
+    n_median = 0
     for r in resorts:
         rid = r["resort_id"]
         sr = by_id.get(rid, {})
         if sr.get("status") == "scraped":
             continue
 
-        key = f"{r['country']}:{r['_size_class']}"
-        peer_med = medians.get(key)
-        if peer_med and peer_med.get("day_pass_adult_eur") is not None:
-            sr["day_pass_adult_eur"] = peer_med["day_pass_adult_eur"]
-            sr["day_pass_youth16_eur"] = peer_med.get("day_pass_youth16_eur")
-            sr["day_pass_child13_eur"] = peer_med.get("day_pass_child13_eur")
-            sr["family_pass_eur"] = peer_med.get("family_pass_eur")
+        slope = sr.get("slope_km") or r.get("slope_km")
+        country = r["country"]
+        model = models.get(country)
+
+        if model and slope and slope > 0:
+            a, b, ratios = model
+            adult = max(round(a * math.log(max(slope, 0.5)) + b, 2), 5.0)
+            sr["day_pass_adult_eur"] = adult
+            for field, ratio in ratios.items():
+                sr[field] = round(adult * ratio, 2)
             sr["status"] = "estimated"
             sr["source_url"] = None
             mask = updated_report["resort_id"] == rid
             updated_report.loc[mask, "scraping_status"] = "estimated"
-            updated_report.loc[mask, "error_detail"] = f"Peer median ({key}, n={len(scraped_prices.get(key, []))})"
+            updated_report.loc[mask, "error_detail"] = (
+                f"Regression ({country}, slope={slope:.1f}km)"
+            )
+            n_regression += 1
+        else:
+            key = f"{country}:{r['_size_class']}"
+            peer_med = medians.get(key)
+            if peer_med and peer_med.get("day_pass_adult_eur") is not None:
+                sr["day_pass_adult_eur"] = peer_med["day_pass_adult_eur"]
+                sr["day_pass_youth16_eur"] = peer_med.get("day_pass_youth16_eur")
+                sr["day_pass_child13_eur"] = peer_med.get("day_pass_child13_eur")
+                sr["family_pass_eur"] = peer_med.get("family_pass_eur")
+                sr["status"] = "estimated"
+                sr["source_url"] = None
+                mask = updated_report["resort_id"] == rid
+                updated_report.loc[mask, "scraping_status"] = "estimated"
+                updated_report.loc[mask, "error_detail"] = (
+                    f"Peer median ({key}, n={len(scraped_prices.get(key, []))})"
+                )
+                n_median += 1
 
     logger.info(
-        "Imputation: %d estimated from peer medians",
-        sum(1 for r in scrape_results if r.get("status") == "estimated"),
+        "Imputation: %d via regression, %d via peer median, %d total",
+        n_regression, n_median, n_regression + n_median,
     )
 
     for r in resorts:

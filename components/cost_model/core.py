@@ -131,7 +131,7 @@ def compute_costs(
     df["in_ranking"] = (df["drive_time_min"] <= max_drive) & (df["n_runs_valid"] >= 2)
     ranked = df.loc[df["in_ranking"]].copy()
     ranked["value_rank"] = (
-        ranked["value_index"].rank(ascending=False, method="min").astype(int)
+        ranked["value_index"].rank(ascending=False, method="min").astype("Int64")
     )
     df = df.merge(ranked[["resort_id", "value_rank"]], on="resort_id", how="left")
 
