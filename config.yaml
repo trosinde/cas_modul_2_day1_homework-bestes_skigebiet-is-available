@@ -16,6 +16,8 @@ resorts:
   batch_size: 10
 
 gastro:
+  source: "osm"
+  scrape_menus: false
   min_items: 200
   target_items: 300
   search_regions:
@@ -34,6 +36,17 @@ gastro:
     - {country: "FR", region: "Savoie"}
     - {country: "FR", region: "Haute-Savoie"}
   batch_size: 10
+  osm_cache_dir: "data/raw/gastro_source/osm"
+  menu_cache_dir: "data/raw/gastro_source/menus"
+  price_method: "lower_half_avg"
+  country_avg_prices:
+    source: "Eurostat Price Level Index for Restaurant & Hotel services, 2024"
+    source_url: "https://ec.europa.eu/eurostat/databrowser/view/prc_ppp_ind/default/table"
+    CH: {lunch_main_eur: 25.00, lunch_drink_eur: 5.50}
+    AT: {lunch_main_eur: 16.00, lunch_drink_eur: 4.50}
+    DE: {lunch_main_eur: 14.00, lunch_drink_eur: 4.00}
+    IT: {lunch_main_eur: 15.00, lunch_drink_eur: 3.50}
+    FR: {lunch_main_eur: 17.00, lunch_drink_eur: 4.00}
 
 matching:
   radius_km:
@@ -68,13 +81,13 @@ clustering:
     - "drive_time_min"
 
 llm:
-  provider: "openai"
+  provider: "anthropic"
   temperature_factual: 0.3
   temperature_subjective: 0.7
   max_retries: 3
   runs: 3
   models:
-    anthropic: "claude-sonnet-4-20250514"
+    anthropic: "claude-sonnet-5-5"
     openai: "gpt-4o"
 
 acceptance:
@@ -86,7 +99,7 @@ acceptance:
   top_n_sensitivity: 5
   price_sensitivity_pct: 0.10
 
-include_lunch_cost: false
+include_lunch_cost: true
 
 data_dir: "data"
 log_dir: "logs"

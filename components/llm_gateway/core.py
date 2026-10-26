@@ -98,7 +98,6 @@ def _call_anthropic(system_prompt: str, user_prompt: str, model: str, temperatur
         response = client.messages.create(
             model=model,
             max_tokens=4096,
-            temperature=temperature,
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
         )
@@ -118,7 +117,6 @@ def _call_anthropic(system_prompt: str, user_prompt: str, model: str, temperatur
         json={
             "model": model,
             "max_tokens": 4096,
-            "temperature": temperature,
             "system": system_prompt,
             "messages": [{"role": "user", "content": user_prompt}],
         },
@@ -341,3 +339,67 @@ def generate_json(
                 break
 
     return GatewayResult(ok=False, attempts=max_retries, error=last_error)
+
+
+def extract_json(
+    template_id: str,
+    variables: dict,
+    temperature: float,
+    out_path: Path,
+    cfg: dict,
+    kind: str = "extract",
+    prompts_dir: str = "prompts",
+) -> dict | None:
+    """Call LLM and return the parsed JSON dict directly.
+
+    Unlike generate_json, this does not extract a record list or validate
+    against a schema.  Use for structured extraction tasks such as menu
+    price extraction.
+    """
+    provider, model = _detect_provider(cfg)
+    max_retries = cfg.get("llm", {}).get("max_retries", 3)
+    system_prompt = _load_system_prompt(prompts_dir)
+    user_prompt = _load_prompt(template_id, variables, prompts_dir)
+
+    raw_text = ""
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            if provider == "mock":
+                raw_text, p_tokens, c_tokens = _call_mock(template_id, variables)
+            elif provider == "anthropic":
+                raw_text, p_tokens, c_tokens = _call_anthropic(
+                    system_prompt, user_prompt, model, temperature,
+                )
+            elif provider == "openai":
+                raw_text, p_tokens, c_tokens = _call_openai(
+                    system_prompt, user_prompt, model, temperature,
+                )
+            else:
+                raise ValueError(f"Unknown provider: {provider}")
+
+            data = _extract_json(raw_text)
+
+            _save_envelope(
+                out_path, kind, template_id, provider, model, temperature,
+                raw_text, [], attempt, None, p_tokens, c_tokens,
+            )
+            return data
+
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            last_error = str(e)
+            _save_envelope(
+                out_path, kind, template_id, provider, model, temperature,
+                raw_text, [], attempt, last_error,
+            )
+            continue
+        except Exception as e:
+            last_error = str(e)
+            _save_envelope(
+                out_path, kind, template_id, provider, model, temperature,
+                raw_text, [], attempt, last_error,
+            )
+            if attempt == max_retries:
+                break
+
+    return None

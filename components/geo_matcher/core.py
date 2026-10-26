@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -15,12 +17,46 @@ from common.paths import processed_dir
 logger = get_logger("geo_matcher")
 
 
+class _Progress:
+    """Simple progress tracker with stderr status line."""
+
+    def __init__(self, phase: str, total: int):
+        self._phase = phase
+        self._total = total
+        self._done = 0
+        self._start = time.monotonic()
+
+    def tick(self) -> None:
+        self._done += 1
+        if self._done % 200 == 0 or self._done == self._total:
+            self._print()
+
+    def _print(self) -> None:
+        elapsed = time.monotonic() - self._start
+        pct = self._done / self._total * 100
+        bar_w = 20
+        filled = int(bar_w * self._done / self._total)
+        bar = "█" * filled + "░" * (bar_w - filled)
+        sys.stderr.write(
+            f"\r  {self._phase}: {bar} {pct:5.1f}%  "
+            f"[{self._done}/{self._total}]  {elapsed:.0f}s   \r"
+        )
+        sys.stderr.flush()
+
+    def finish(self, msg: str = "") -> None:
+        elapsed = time.monotonic() - self._start
+        line = f"\r  {self._phase}: {msg}  ({elapsed:.1f}s)"
+        sys.stderr.write(line + " " * 20 + "\n")
+        sys.stderr.flush()
+
+
 def match_restaurants(resorts_df: pd.DataFrame, restaurants_df: pd.DataFrame,
                       cfg: dict) -> pd.DataFrame:
     """Match each restaurant to its nearest resort within radius."""
     radius_km = cfg["matching"]["radius_km"]
     ambiguity_km = cfg["matching"]["ambiguity_km"]
 
+    progress = _Progress("Matching", total=len(restaurants_df))
     matches = []
     for _, rest in restaurants_df.iterrows():
         distances = []
@@ -78,6 +114,9 @@ def match_restaurants(resorts_df: pd.DataFrame, restaurants_df: pd.DataFrame,
                 "hint_agrees": hint_agrees,
             })
 
+        progress.tick()
+
+    progress.finish(f"{len(matches)} Restaurants geprüft")
     return pd.DataFrame(matches)
 
 
@@ -167,3 +206,4 @@ def run(cfg: dict):
     logger.info(
         f"Matched {n_matched}, ambiguous {n_ambiguous}, unmatched {n_unmatched}"
     )
+    print(f"  {n_matched} matched, {n_ambiguous} ambiguous, {n_unmatched} unmatched")

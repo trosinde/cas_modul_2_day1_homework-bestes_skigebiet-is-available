@@ -105,7 +105,21 @@ make report           # C8: Bericht bauen
 # Testbatch (1 Batch, zur Kontrolle vor dem vollen Lauf)
 make resorts-test
 make gastro-test
+
+# Speisekarten-Scraping (Playwright + LLM, per Default deaktiviert)
+make gastro-scrape                    # alle Restaurants mit Website
+make gastro-scrape MENU_LIMIT=20      # nur 20 Speisekarten
 ```
+
+### Speisekarten-Scraping aktivieren
+
+Per Default nutzt C2 nur Länderdurchschnitte (Eurostat) für die Mittagspreise. Um echte Speisekarten zu lesen (Playwright + LLM), gibt es drei Wege:
+
+1. **Make-Target:** `make gastro-scrape`
+2. **CLI-Flag:** `python -m components.gastro_source --scrape-menus`
+3. **Config:** In `config.yaml` unter `gastro:` setzen: `scrape_menus: true`
+
+Das Scraping ist **inkrementell** — bei Abbruch und Neustart werden bereits erfolgreich extrahierte Restaurants aus dem Cache geladen (kein erneuter LLM-Aufruf).
 
 ## Tests
 

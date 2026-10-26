@@ -173,15 +173,46 @@ def run_clustering(costs_df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dic
     available = [f for f in features if f in costs_df.columns]
     X_raw = costs_df[available].copy()
     X_raw = X_raw.fillna(X_raw.median())
+    valid_mask = ~X_raw.isna().any(axis=1)
+
+    if valid_mask.sum() == 0:
+        logger.warning("All rows have NaN in clustering features, skipping")
+        result = pd.DataFrame({
+            "resort_id": costs_df["resort_id"].values,
+            "cluster_id": -1,
+            "cluster_label": "unbekannt",
+            "pc1": 0.0,
+            "pc2": 0.0,
+            "silhouette": 0.0,
+        })
+        return result, {"best_k": 0, "features": available, "silhouette_scores": {}}
+
+    if (~valid_mask).any():
+        logger.warning("Dropping %d rows with NaN from clustering", (~valid_mask).sum())
+
+    X_clean = X_raw[valid_mask]
+    costs_clean = costs_df[valid_mask].reset_index(drop=True)
 
     if HAS_SKLEARN:
         scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X_raw)
+        X_scaled = scaler.fit_transform(X_clean)
     else:
-        X_scaled = _standardize(X_raw.values)
+        X_scaled = _standardize(X_clean.values)
 
-    effective_k_max = min(k_max, len(costs_df) - 1)
-    best_k, sil_scores = find_best_k(X_scaled, k_min, effective_k_max, random_state)
+    effective_k_max = min(k_max, len(costs_clean) - 1)
+    effective_k_min = min(k_min, effective_k_max)
+    if effective_k_min < 2:
+        logger.warning("Too few resorts (%d) for clustering, skipping", len(costs_clean))
+        result = pd.DataFrame({
+            "resort_id": costs_df["resort_id"].values,
+            "cluster_id": -1,
+            "cluster_label": "unbekannt",
+            "pc1": 0.0,
+            "pc2": 0.0,
+            "silhouette": 0.0,
+        })
+        return result, {"best_k": 0, "features": available, "silhouette_scores": {}}
+    best_k, sil_scores = find_best_k(X_scaled, effective_k_min, effective_k_max, random_state)
     logger.info(f"Best k={best_k}, silhouette scores: {sil_scores}")
 
     if HAS_SKLEARN:
@@ -195,8 +226,8 @@ def run_clustering(costs_df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dic
         coords = _pca_2d(X_scaled)
         sil_values = _silhouette_samples_simple(X_scaled, labels)
 
-    result = pd.DataFrame({
-        "resort_id": costs_df["resort_id"].values,
+    clustered = pd.DataFrame({
+        "resort_id": costs_clean["resort_id"].values,
         "cluster_id": labels,
         "cluster_label": "",
         "pc1": np.round(coords[:, 0], 4),
@@ -204,10 +235,20 @@ def run_clustering(costs_df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dic
         "silhouette": np.round(sil_values, 4),
     })
 
-    temp = costs_df.copy()
+    temp = costs_clean.copy()
     temp["cluster_id"] = labels
     label_map = assign_cluster_labels(temp, available)
-    result["cluster_label"] = result["cluster_id"].map(label_map)
+    clustered["cluster_label"] = clustered["cluster_id"].map(label_map)
+
+    unclustered = pd.DataFrame({
+        "resort_id": costs_df[~valid_mask]["resort_id"].values,
+        "cluster_id": -1,
+        "cluster_label": "unbekannt",
+        "pc1": 0.0,
+        "pc2": 0.0,
+        "silhouette": 0.0,
+    })
+    result = pd.concat([clustered, unclustered], ignore_index=True)
 
     meta_extra = {
         "best_k": best_k,
@@ -231,7 +272,13 @@ def run(cfg: dict):
         "clustering@1.0.0",
         inputs=[str(Path(proc) / "resorts_costs.csv")],
     )
+    n_clusters = clusters_df["cluster_id"].nunique()
+    best_k = meta_extra["best_k"]
+    best_score = meta_extra["silhouette_scores"].get(best_k)
     logger.info(
-        f"Clustered {len(clusters_df)} resorts into "
-        f"{clusters_df['cluster_id'].nunique()} clusters"
+        f"Clustered {len(clusters_df)} resorts into {n_clusters} clusters"
     )
+    if best_score is not None:
+        print(f"  Best k={best_k} (silhouette {best_score:.2f}) — {n_clusters} Cluster")
+    else:
+        print(f"  Kein Clustering möglich (fehlende Daten) — {n_clusters} Gruppe(n)")

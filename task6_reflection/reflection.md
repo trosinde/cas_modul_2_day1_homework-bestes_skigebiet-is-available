@@ -8,6 +8,11 @@
 
 *Hier werden laufend Probleme und Überraschungen dokumentiert.*
 
+- **C2 komplett LLM-fabriziert:** Alle Restaurantdaten (Namen, Koordinaten, Preise) stammten aus GPT-4o — kein einziger Wert aus einer echten Quelle. Für die Uni-Abgabe nicht tragbar. Lösung: OSM für Restaurantliste, Playwright + LLM-Extraktion für Speisekarten-Preise, Eurostat-Fallback für Restaurants ohne auffindbare Speisekarte.
+- **Overpass-API nicht erreichbar:** Lokale Firewall blockiert Verbindung zur Overpass-API. Mitigation: Caching der Antworten, alternative Mirrors (lz4, kumi).
+- **Nur ~40-50% der OSM-Restaurants haben Website-Tags:** Von den Restaurants mit Website haben wiederum nur ~30-40% auffindbare Speisekarten. Der Rest benötigt den länderspezifischen Statistik-Fallback (Eurostat). Lösung: Transparente Kennzeichnung über `price_source` und `is_estimate`.
+- **cost_table-Schema-Verletzung:** `lunch_main_eur`/`lunch_drink_eur` aus dem Restaurant-Join blieben als Spalten im cost_table-DataFrame und verletzten `additionalProperties: false`. Fix: Zwischenspalten nach Berechnung von `lunch_cost_eur` droppen.
+
 ### Ein leistungsfähiges System für die Generierung meines Falls sollte …
 
 - Attribute mit Skalen-Ankern interaktiv definieren und an 5 Items vorab testen

@@ -10,3 +10,7 @@ pyyaml
 python-dotenv
 jsonschema
 jinja2
+httpx
+requests
+playwright
+pdfplumber

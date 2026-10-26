@@ -1,11 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Restaurant Record (LLM output)",
+  "title": "Restaurant Record (OSM + menu extraction)",
   "type": "object",
   "required": [
-    "name", "country", "region", "lat", "lon", "elevation_m",
-    "restaurant_type", "lunch_main_eur", "lunch_drink_eur",
-    "price_level", "confidence", "reason_price"
+    "name", "country", "region", "lat", "lon", "restaurant_type"
   ],
   "properties": {
     "name": { "type": "string", "minLength": 1 },
@@ -13,14 +11,21 @@
     "region": { "type": "string", "minLength": 1 },
     "lat": { "type": "number", "minimum": 43, "maximum": 49 },
     "lon": { "type": "number", "minimum": 4, "maximum": 17 },
-    "elevation_m": { "type": "integer", "minimum": 500, "maximum": 3500 },
+    "elevation_m": { "type": ["integer", "null"], "minimum": 0, "maximum": 4500 },
     "restaurant_type": { "type": "string", "enum": ["self_service", "hut", "restaurant"] },
     "ski_area_hint": { "type": ["string", "null"] },
-    "lunch_main_eur": { "type": "number", "minimum": 10, "maximum": 45 },
-    "lunch_drink_eur": { "type": "number", "minimum": 3, "maximum": 10 },
-    "price_level": { "type": "string", "enum": ["low", "medium", "high"] },
-    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
-    "reason_price": { "type": "string", "minLength": 1 }
+    "osm_id": { "type": ["integer", "null"] },
+    "osm_type": { "type": ["string", "null"], "enum": ["node", "way", "relation", null] },
+    "website": { "type": ["string", "null"] },
+    "lunch_main_eur": { "type": ["number", "null"] },
+    "lunch_drink_eur": { "type": ["number", "null"] },
+    "price_level": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
+    "confidence": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
+    "reason_price": { "type": ["string", "null"] },
+    "price_source": { "type": ["string", "null"], "enum": ["menu_card", "country_statistics_estimate", null] },
+    "is_estimate": { "type": ["boolean", "null"] },
+    "menu_url": { "type": ["string", "null"] },
+    "price_source_detail": { "type": ["string", "null"] }
   },
   "additionalProperties": false
 }

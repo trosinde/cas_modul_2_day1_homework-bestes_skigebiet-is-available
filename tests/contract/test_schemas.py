@@ -83,8 +83,8 @@ def test_example_llm_responses_are_valid_json():
     for path in llm_dir.glob("*.json"):
         data = json.loads(path.read_text(encoding="utf-8"))
         assert isinstance(data, dict), f"{path.name} is not a JSON object"
-        has_records = "resorts" in data or "restaurants" in data
-        assert has_records, f"{path.name} has no 'resorts' or 'restaurants' key"
+        has_records = "resorts" in data or "restaurants" in data or "items" in data
+        assert has_records, f"{path.name} has no 'resorts', 'restaurants', or 'items' key"
 
 
 def test_all_schemas_are_valid():

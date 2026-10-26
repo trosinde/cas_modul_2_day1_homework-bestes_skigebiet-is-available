@@ -145,6 +145,7 @@ const restaurants = DATA.restaurants || [];
 const matches = DATA.matches || [];
 const resortLunch = DATA.resort_lunch || [];
 const CONFIG = DATA.config || {};
+const hasLunchData = resorts.some(r => r.day_cost_v3_eur != null);
 
 // --- Helpers ---
 function valueColor(vi) {
@@ -170,6 +171,16 @@ function statusColor(s) {
 const countries = [...new Set(resorts.map(r => r.country))].sort();
 const sel = document.getElementById('filterCountry');
 countries.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+
+// Disable v3 option when no lunch data; auto-select v3 when lunch is active
+const variantSel = document.getElementById('filterVariant');
+const v3Option = variantSel.querySelector('option[value="v3"]');
+if (!hasLunchData) {
+  v3Option.disabled = true;
+  v3Option.textContent += ' (keine Daten)';
+} else if (CONFIG.include_lunch) {
+  variantSel.value = 'v3';
+}
 
 // --- Filter logic ---
 function getFiltered() {

@@ -1,15 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Restaurant Table Row (restaurants.csv)",
+  "title": "Restaurant Table Row (restaurants.csv, OSM-sourced)",
   "type": "object",
   "x-primary-key": ["restaurant_id"],
   "x-column-order": [
     "restaurant_id", "name", "country", "region", "lat", "lon",
     "elevation_m", "restaurant_type", "ski_area_hint",
-    "lunch_main_eur", "lunch_main_eur_sd", "lunch_drink_eur",
-    "price_level", "confidence", "reason_price", "n_runs_valid"
+    "osm_id", "osm_type", "website",
+    "lunch_main_eur", "lunch_drink_eur",
+    "price_source", "is_estimate", "menu_url", "price_source_detail",
+    "price_level", "confidence", "reason_price"
   ],
-  "required": ["restaurant_id", "name", "country", "region", "lat", "lon", "n_runs_valid"],
+  "required": ["restaurant_id", "name", "country", "region", "lat", "lon"],
   "properties": {
     "restaurant_id": { "type": "string", "pattern": "^[a-z]{2}-.+-.+" },
     "name": { "type": "string", "minLength": 1 },
@@ -20,13 +22,20 @@
     "elevation_m": { "type": ["integer", "null"] },
     "restaurant_type": { "type": ["string", "null"], "enum": ["self_service", "hut", "restaurant", null] },
     "ski_area_hint": { "type": ["string", "null"] },
+    "osm_id": { "type": ["integer", "null"] },
+    "osm_type": { "type": ["string", "null"], "enum": ["node", "way", "relation", null] },
+    "website": { "type": ["string", "null"] },
     "lunch_main_eur": { "type": ["number", "null"] },
-    "lunch_main_eur_sd": { "type": ["number", "null"], "minimum": 0 },
     "lunch_drink_eur": { "type": ["number", "null"] },
+    "price_source": { "type": ["string", "null"], "enum": ["menu_card", "country_statistics_estimate", null] },
+    "is_estimate": { "type": ["boolean", "null"] },
+    "menu_url": { "type": ["string", "null"] },
+    "price_source_detail": { "type": ["string", "null"] },
     "price_level": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
     "confidence": { "type": ["string", "null"], "enum": ["low", "medium", "high", null] },
     "reason_price": { "type": ["string", "null"] },
-    "n_runs_valid": { "type": "integer", "minimum": 0, "maximum": 3 }
+    "lunch_main_eur_sd": { "type": ["number", "null"] },
+    "n_runs_valid": { "type": ["integer", "null"] }
   },
   "additionalProperties": false
 }

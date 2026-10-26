@@ -23,7 +23,8 @@
     "value_for_money", "value_for_money_sd", "value_for_money_range",
     "confidence", "confidence_agreement",
     "reason_snow", "reason_family", "reason_value",
-    "n_runs_valid"
+    "n_runs_valid",
+    "source_coords", "source_driving", "source_prices", "source_physical", "source_ratings"
   ],
   "required": ["resort_id", "name", "country", "region", "lat", "lon", "n_runs_valid"],
   "properties": {
@@ -81,7 +82,12 @@
     "reason_snow": { "type": ["string", "null"] },
     "reason_family": { "type": ["string", "null"] },
     "reason_value": { "type": ["string", "null"] },
-    "n_runs_valid": { "type": "integer", "minimum": 0, "maximum": 3 }
+    "n_runs_valid": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "source_coords": { "type": ["string", "null"] },
+    "source_driving": { "type": ["string", "null"] },
+    "source_prices": { "type": ["string", "null"] },
+    "source_physical": { "type": ["string", "null"] },
+    "source_ratings": { "type": ["string", "null"] }
   },
   "additionalProperties": false
 }

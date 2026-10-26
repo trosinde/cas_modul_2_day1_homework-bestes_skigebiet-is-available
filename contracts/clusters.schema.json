@@ -7,7 +7,7 @@
   "required": ["resort_id", "cluster_id", "cluster_label", "pc1", "pc2", "silhouette"],
   "properties": {
     "resort_id": { "type": "string", "pattern": "^[a-z]{2}-.+" },
-    "cluster_id": { "type": "integer", "minimum": 0 },
+    "cluster_id": { "type": "integer", "minimum": -1 },
     "cluster_label": { "type": "string", "minLength": 1 },
     "pc1": { "type": "number" },
     "pc2": { "type": "number" },

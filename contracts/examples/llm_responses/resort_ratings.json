@@ -1,0 +1,32 @@
+{"resorts": [
+  {
+    "resort_id": "ch-flumserberg",
+    "snow_reliability": 6,
+    "family_friendliness": 8,
+    "value_for_money": 7,
+    "confidence": "high",
+    "reason_snow": "Höhenlage bis 2222 m mit Beschneiung auf Hauptpisten sorgt für akzeptable Schneesicherheit.",
+    "reason_family": "Grosses Kinderland und Skischule sowie familienfreundliche blaue Pisten machen es ideal für Familien.",
+    "reason_value": "Moderate Preise bei guter Familieninfrastruktur bieten ein solides Preis-Leistungs-Verhältnis."
+  },
+  {
+    "resort_id": "ch-davos-klosters",
+    "snow_reliability": 8,
+    "family_friendliness": 7,
+    "value_for_money": 6,
+    "confidence": "high",
+    "reason_snow": "Höhenlage bis 2844 m sorgt für sehr gute Schneesicherheit.",
+    "reason_family": "Grosses Skigebiet mit vielfältigem Pistenangebot für alle Niveaus.",
+    "reason_value": "Hohe Preise, aber dafür grosses und schneesicheres Gebiet."
+  },
+  {
+    "resort_id": "at-silvretta-montafon",
+    "snow_reliability": 7,
+    "family_friendliness": 7,
+    "value_for_money": 7,
+    "confidence": "high",
+    "reason_snow": "Gute Höhenlage bis 2430 m mit Beschneiung.",
+    "reason_family": "Breites Pistenangebot für alle Niveaus mit guter Skischulinfrastruktur.",
+    "reason_value": "Grosses Skigebiet mit fairem Preis-Leistungs-Verhältnis."
+  }
+]}

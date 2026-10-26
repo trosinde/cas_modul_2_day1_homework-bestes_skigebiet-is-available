@@ -70,6 +70,10 @@ def compute_costs(
         df["lunch_cost_eur"] = np.nan
         df["lunch_source"] = None
 
+    for tmp_col in ("lunch_main_eur", "lunch_drink_eur"):
+        if tmp_col in df.columns:
+            df.drop(columns=[tmp_col], inplace=True)
+
     # --- Three cost variants (always computed) ---
     df["day_cost_v1_eur"] = df["family_pass_cost_eur"].round(2)
     df["day_cost_v2_eur"] = (
@@ -144,7 +148,7 @@ def run(cfg: dict) -> None:
 
     resort_lunch_df = None
     lunch_path = Path(proc) / "resort_lunch.csv"
-    if lunch_path.exists() and cfg.get("include_lunch_cost", False):
+    if lunch_path.exists():
         resort_lunch_df = read_csv(lunch_path, "resort_lunch")
 
     costs_df = compute_costs(resorts_df, resort_lunch_df, cfg)
@@ -163,3 +167,4 @@ def run(cfg: dict) -> None:
 
     in_rank = costs_df["in_ranking"].sum()
     logger.info(f"Computed costs for {len(costs_df)} resorts, {in_rank} in ranking")
+    print(f"  {len(costs_df)} Skigebiete berechnet, {in_rank} im Ranking")

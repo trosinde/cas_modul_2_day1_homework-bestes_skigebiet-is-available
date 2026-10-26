@@ -2,8 +2,11 @@
 
 import argparse
 import sys
-import yaml
+import time
+from datetime import datetime
 from pathlib import Path
+
+import yaml
 
 
 STEPS = [
@@ -17,6 +20,10 @@ STEPS = [
 ]
 
 
+def _ts():
+    return datetime.now().strftime("[%H:%M:%S]")
+
+
 def run_pipeline(config_path: str = "config.yaml", mock: bool = False, yes: bool = False):
     with open(config_path) as f:
         cfg = yaml.safe_load(f)
@@ -27,12 +34,19 @@ def run_pipeline(config_path: str = "config.yaml", mock: bool = False, yes: bool
 
     include_lunch = cfg.get("include_lunch_cost", False)
 
+    from common.paths import processed_dir
+    proc = Path(processed_dir(cfg))
+    gastro_data_exists = (proc / "resort_lunch.csv").exists()
+
+    t_pipeline = time.monotonic()
+
     for step_name, module_name, always_run in STEPS:
-        if not always_run and not include_lunch:
-            print(f"  SKIP {step_name} (include_lunch_cost: false)")
+        if not always_run and not include_lunch and not gastro_data_exists:
+            print(f"{_ts()}  SKIP {step_name} (include_lunch_cost: false, no prior gastro data)", flush=True)
             continue
 
-        print(f"  RUN  {step_name}")
+        print(f"{_ts()}  RUN  {step_name}", flush=True)
+        t_step = time.monotonic()
 
         try:
             mod = __import__(module_name, fromlist=["core"])
@@ -48,16 +62,20 @@ def run_pipeline(config_path: str = "config.yaml", mock: bool = False, yes: bool
             else:
                 core.run(cfg)
 
-            print(f"  OK   {step_name}")
+            elapsed = time.monotonic() - t_step
+            print(f"{_ts()}  OK   {step_name} ({elapsed:.1f}s)", flush=True)
         except SystemExit as e:
             if e.code != 0:
-                print(f"  FAIL {step_name} (exit {e.code})")
+                elapsed = time.monotonic() - t_step
+                print(f"{_ts()}  FAIL {step_name} (exit {e.code}, {elapsed:.1f}s)", flush=True)
                 sys.exit(e.code)
         except Exception as e:
-            print(f"  FAIL {step_name}: {e}")
+            elapsed = time.monotonic() - t_step
+            print(f"{_ts()}  FAIL {step_name}: {e} ({elapsed:.1f}s)", flush=True)
             sys.exit(1)
 
-    print("\nPipeline complete.")
+    total = time.monotonic() - t_pipeline
+    print(f"\nPipeline complete. ({total:.1f}s)")
 
 
 def main():

@@ -1,0 +1,13 @@
+{
+  "items": [
+    {"name": "Wiener Schnitzel", "price_eur": 22.00},
+    {"name": "Käsespätzle", "price_eur": 16.50},
+    {"name": "Grillplatte", "price_eur": 24.00},
+    {"name": "Rösti mit Spiegelei", "price_eur": 14.00},
+    {"name": "Tagessuppe mit Brot", "price_eur": 9.50},
+    {"name": "Älplermagronen", "price_eur": 18.00}
+  ],
+  "drink_05l_eur": 4.50,
+  "currency_detected": "CHF",
+  "menu_language": "de"
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scraping Report Row (scraping_report.csv)",
+  "type": "object",
+  "x-primary-key": ["resort_id"],
+  "x-column-order": [
+    "resort_id", "name", "country", "scraping_status", "source_url", "attempted_url", "error_detail"
+  ],
+  "required": ["resort_id", "name", "scraping_status"],
+  "properties": {
+    "resort_id": { "type": "string", "pattern": "^[a-z]{2}-.+" },
+    "name": { "type": "string", "minLength": 1 },
+    "country": { "type": ["string", "null"], "pattern": "^[A-Z]{2}$" },
+    "scraping_status": {
+      "type": "string",
+      "enum": ["scraped", "estimated", "not_found", "no_prices", "error"]
+    },
+    "source_url": { "type": ["string", "null"] },
+    "attempted_url": { "type": ["string", "null"] },
+    "error_detail": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

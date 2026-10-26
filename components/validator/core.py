@@ -403,6 +403,7 @@ def run_sample(cfg: dict) -> None:
         inputs=[str(proc / "resorts.csv")],
     )
     logger.info("Generated fact-check sample with %d entries", len(sample))
+    print(f"  Fact-check sample: {len(sample)} Einträge")
 
 
 def run_validate(cfg: dict) -> dict:
@@ -494,6 +495,7 @@ def run_validate(cfg: dict) -> dict:
         "Validation complete: %s (%d flags)",
         report["recommendation"], len(all_flags),
     )
+    print(f"  Validation: {report['recommendation']} ({len(all_flags)} Flags)")
     return report
 
 

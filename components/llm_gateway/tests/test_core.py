@@ -63,20 +63,20 @@ class TestExtractJson:
 
 
 class TestGenerateJson:
-    def test_mock_resort_items(self, mock_cfg, tmp_path):
+    def test_mock_resort_ratings(self, mock_cfg, tmp_path):
         mock_responses = PROJECT_ROOT / "contracts" / "examples" / "llm_responses"
-        if not mock_responses.exists() or not list(mock_responses.glob("resort_items*.json")):
-            pytest.skip("No mock resort_items responses available yet")
+        if not mock_responses.exists() or not list(mock_responses.glob("resort_ratings*.json")):
+            pytest.skip("No mock resort_ratings responses available yet")
 
         out = tmp_path / "envelope.json"
         result = generate_json(
-            template_id="resort_items",
-            variables={"batch_size": "5", "country": "CH", "region": "Ostschweiz", "existing_names": ""},
-            record_schema_id="resort_record",
-            temperature=0.3,
+            template_id="resort_ratings",
+            variables={"batch_list": "- ch-flumserberg: Flumserberg (CH)"},
+            record_schema_id="resort_rating_record",
+            temperature=0.7,
             out_path=out,
             cfg=mock_cfg,
-            kind="resort_items",
+            kind="resort_ratings",
             prompts_dir=str(PROJECT_ROOT / "prompts"),
             contracts_dir=str(PROJECT_ROOT / "contracts"),
         )
@@ -86,4 +86,4 @@ class TestGenerateJson:
             assert out.exists()
             envelope = json.loads(out.read_text())
             assert envelope["provider"] == "mock"
-            assert envelope["kind"] == "resort_items"
+            assert envelope["kind"] == "resort_ratings"

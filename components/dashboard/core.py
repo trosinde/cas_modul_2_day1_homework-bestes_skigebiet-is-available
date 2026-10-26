@@ -19,6 +19,7 @@ DASHBOARD_RESORT_FIELDS = [
     "family_day_cost_eur", "day_cost_v1_eur", "day_cost_v2_eur", "day_cost_v3_eur",
     "quality_score", "value_index", "value_index_v1", "value_index_v2", "value_index_v3",
     "in_ranking", "value_rank",
+    "source_coords", "source_driving", "source_prices", "source_physical", "source_ratings",
 ]
 
 
@@ -134,6 +135,26 @@ def export_figures(data: dict, figures_dir: Path, cfg: dict) -> pd.DataFrame:
         fig.write_image(str(path), width=1600, height=1000)
         figures.append({"file": path.name, "component": "dashboard", "title": "Tageskosten je Land", "task": 4, "caption": "Boxplot der Familien-Tageskosten nach Land."})
 
+    if len(resorts) > 0 and "source_prices" in resorts.columns:
+        countries = sorted(resorts["country"].unique())
+        scraped = []
+        estimated = []
+        null_counts = []
+        for c in countries:
+            sub = resorts[resorts["country"] == c]
+            scraped.append(len(sub[sub["source_prices"].notna() & sub["source_prices"].str.startswith("http", na=False)]))
+            estimated.append(len(sub[sub["source_prices"] == "estimated:country_size_median"]))
+            null_counts.append(len(sub[sub["source_prices"].isna()]))
+        fig = go.Figure()
+        fig.add_trace(go.Bar(name="Gescrapt (echte Preise)", x=countries, y=scraped, marker_color="#2ecc71"))
+        fig.add_trace(go.Bar(name="Geschätzt (Peer-Median)", x=countries, y=estimated, marker_color="#f39c12"))
+        fig.add_trace(go.Bar(name="Keine Daten", x=countries, y=null_counts, marker_color="#e74c3c"))
+        fig.update_layout(barmode="stack", title="Preisdaten-Herkunft je Land",
+                          xaxis_title="Land", yaxis_title="Anzahl Skigebiete")
+        path = figures_dir / "fig_data_provenance.png"
+        fig.write_image(str(path), width=1200, height=700)
+        figures.append({"file": path.name, "component": "dashboard", "title": "Preisdaten-Herkunft je Land", "task": 4, "caption": "Stacked Bar: Gescrapte vs. geschätzte vs. fehlende Preise pro Land."})
+
     if "clusters" in data and data["clusters"]:
         clusters = pd.DataFrame(data["clusters"])
         fig = px.scatter(clusters, x="pc1", y="pc2", color="cluster_label",
@@ -163,3 +184,4 @@ def run(cfg: dict):
         write_csv(figures_df, figures_dir / "figures_index.csv", "figures_index", "dashboard@1.0.0")
 
     logger.info(f"Dashboard written to {out_path}, {len(figures_df)} figures exported")
+    print(f"  Dashboard + {len(figures_df)} Figures exportiert")
